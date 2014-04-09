@@ -3,7 +3,9 @@ FileUploader
 
 Collaide app for synchronizing files and folders
 
-# Contibute
+## Work in progress !
+
+### Contibute
 
 1. Install maven
 2. run ` maven install package exec:java  `
@@ -11,14 +13,12 @@ Collaide app for synchronizing files and folders
 4. code it !
 5. push
 
-# features
+#### features
 
 * sign in to collaide
 * change panel
 
-# Work in progress !
-
-# Organization
+### Organization
 
 * Follow the mvc pattern
 * views designed with netbeans
