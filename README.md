@@ -13,10 +13,16 @@ Collaide app for synchronizing files and folders
 4. code it !
 5. push
 
-#### features
+### features
 
-* sign in to collaide
-* change panel
+* sign in to collaide --> done
+* change panel --> done
+* view repositories on collaide of the user
+* select one repo
+* select files and folders to observes
+* synchronize file and folders observed with the selected repo
+* enable notifications (maybe with a server in the app, so collaide can send POST notifications to the registred apps ?)
+* more ? (discussions, messages, etc)?
 
 ### Organization
 
