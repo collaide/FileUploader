@@ -5,6 +5,7 @@ package com.collaide.fileuploader.models;
  * @author leo
  */
 public class User extends Model{
+    private int id;
     private String email;
     private String password;
 
@@ -27,5 +28,13 @@ public class User extends Model{
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

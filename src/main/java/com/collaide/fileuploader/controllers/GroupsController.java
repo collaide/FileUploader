@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 package com.collaide.fileuploader.controllers;
 
 import com.collaide.fileuploader.models.CurrentUser;
-import com.collaide.fileuploader.models.User;
+import com.collaide.fileuploader.models.Group;
 import com.sun.jersey.api.client.ClientResponse;
 import javax.ws.rs.core.MediaType;
 
@@ -14,15 +15,13 @@ import javax.ws.rs.core.MediaType;
  *
  * @author leo
  */
-public class UserController {
-
-    public boolean signIn(String email, String password) {
-        User user = new User(email, password);
-        ClientResponse response = Collaide.request("auth_token")
+public class GroupsController {
+    
+    public Group[] index() {
+        ClientResponse response = Collaide.request(CurrentUser.getUser().getId() + "/groups")
                 .type(MediaType.APPLICATION_JSON)
-                .post(ClientResponse.class, user.toJson());
-        // TODO: prendre la réponse
-        CurrentUser.getInstance().setUser(null);
-        return response.getStatus() == 200;
+                .get(ClientResponse.class);
+        return null;
     }
+    
 }
