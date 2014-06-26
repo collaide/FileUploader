@@ -28,4 +28,8 @@ public class CurrentUser {
     public static User getUser() {
         return getInstance().user;
     }
+    
+    public static String getAuthParams() {
+        return "user_email=" + getInstance().user.getEmail() + "&user_token=" + getInstance().user.getToken();
+    }
 }

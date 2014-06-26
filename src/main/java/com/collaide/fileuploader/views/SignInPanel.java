@@ -6,12 +6,9 @@
 
 package com.collaide.fileuploader.views;
 
-import com.collaide.fileuploader.App;
-import com.collaide.fileuploader.controllers.UserController;
-import com.collaide.fileuploader.views.listeners.SignInListener;
-import java.util.EventListener;
+import com.collaide.fileuploader.controllers.AppController;
+import com.collaide.fileuploader.requests.UsersRequest;
 import javax.swing.JOptionPane;
-import javax.swing.event.EventListenerList;
 
 /**
  *
@@ -19,25 +16,11 @@ import javax.swing.event.EventListenerList;
  */
 public class SignInPanel extends javax.swing.JPanel {
 
-    private final EventListenerList listeners = new EventListenerList();
     /**
      * Creates new form SignInPanel
      */
     public SignInPanel() {
         initComponents();
-    }
-
-    public void addSignInListener(SignInListener listener) {
-        listeners.add(SignInListener.class, listener);
-    }
-    public SignInListener[] getSignInListener() {
-        return listeners.getListeners(SignInListener.class);
-    }
-    
-    public void fireLoginSuccessful() {
-        for(SignInListener listener : getSignInListener()) {
-            listener.loginSuccess();
-        }
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -120,9 +103,8 @@ public class SignInPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbSignInActionPerformed
-        UserController userC = new UserController();
-        if(userC.signIn(jtfEmail.getText(), String.valueOf(jpfUserPassword.getPassword()))) {
-            fireLoginSuccessful();
+        if(UsersRequest.signIn(jtfEmail.getText(), String.valueOf(jpfUserPassword.getPassword()))) {
+            AppController.getInstance().signIn();
         } else {
             JOptionPane.showMessageDialog(this, "Wrong combination email/password", "Sign in error",  JOptionPane.INFORMATION_MESSAGE);
         }
