@@ -8,8 +8,9 @@ package com.collaide.fileuploader.views;
 import com.collaide.fileuploader.models.CurrentUser;
 import com.collaide.fileuploader.models.Group;
 import com.collaide.fileuploader.requests.GroupsRequest;
-import java.awt.BorderLayout;
-import javax.swing.JLabel;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
 
 /**
  *
@@ -23,15 +24,32 @@ public class GroupPanel extends javax.swing.JPanel {
     public GroupPanel() {
         initComponents();
         jlWelcome.setText(jlWelcome.getText() + " " + CurrentUser.getUser().getName());
-        for (Group group : GroupsRequest.index()) {
-            JLabel label = new JLabel(group.getName());
-            label.setText("ahsdf");
-            jpRepository.add(label);
-            invalidate();
-            validate();
-            repaint();
-            System.out.println("label . " + label.getText() + " " + group.getName());
+        Group[] groups = GroupsRequest.index();
+        if (groups == null) {
+            jlInfo.setText("No groups");
+        } else {
+            int groupIndex = 0;
+            for (Group group : groups) {
+                jpGroups.setLayout(new GridBagLayout());
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.gridx = 0;
+                gbc.gridy = groupIndex;
+                gbc.gridheight = 1;
+                gbc.gridwidth = 1;
+                SingleGroupInfoPanel groupInfo = new SingleGroupInfoPanel(group);
+                groupInfo.addSingleGroupInfoListener(new SingleGroupInfoListener() {
+
+                    @Override
+                    public void modifyClicked(Group groupClicked) {
+                    }
+                });
+                jpGroups.add(groupInfo, gbc);
+                
+                groupIndex++;
+            }
+            jlInfo.setText("");
         }
+
     }
 
     /**
@@ -49,7 +67,7 @@ public class GroupPanel extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jlInfo = new javax.swing.JLabel();
         jlWelcome = new javax.swing.JLabel();
-        jpRepository = new javax.swing.JPanel();
+        jpGroups = new javax.swing.JPanel();
 
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         jLabel1.setText("Select one of your repository to synchronize");
@@ -59,15 +77,15 @@ public class GroupPanel extends javax.swing.JPanel {
         jlWelcome.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         jlWelcome.setText("Welcome");
 
-        javax.swing.GroupLayout jpRepositoryLayout = new javax.swing.GroupLayout(jpRepository);
-        jpRepository.setLayout(jpRepositoryLayout);
-        jpRepositoryLayout.setHorizontalGroup(
-            jpRepositoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 391, Short.MAX_VALUE)
+        javax.swing.GroupLayout jpGroupsLayout = new javax.swing.GroupLayout(jpGroups);
+        jpGroups.setLayout(jpGroupsLayout);
+        jpGroupsLayout.setHorizontalGroup(
+            jpGroupsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 385, Short.MAX_VALUE)
         );
-        jpRepositoryLayout.setVerticalGroup(
-            jpRepositoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
+        jpGroupsLayout.setVerticalGroup(
+            jpGroupsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 138, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -77,16 +95,16 @@ public class GroupPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 403, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jpRepository, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(59, 59, 59)
                         .addComponent(jlInfo))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(170, 170, 170)
-                        .addComponent(jlWelcome)))
+                        .addComponent(jlWelcome))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 403, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jpGroups, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -98,12 +116,15 @@ public class GroupPanel extends javax.swing.JPanel {
                 .addComponent(jlWelcome)
                 .addGap(18, 18, 18)
                 .addComponent(jlInfo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jpRepository, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jpGroups, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void clickModify(ActionEvent e) {
+    
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup bgRepositories;
@@ -112,6 +133,6 @@ public class GroupPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jlInfo;
     private javax.swing.JLabel jlWelcome;
-    private javax.swing.JPanel jpRepository;
+    private javax.swing.JPanel jpGroups;
     // End of variables declaration//GEN-END:variables
 }

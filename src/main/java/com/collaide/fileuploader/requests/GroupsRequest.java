@@ -24,11 +24,9 @@ public class GroupsRequest {
                 .type(MediaType.APPLICATION_JSON)
                 .get(ClientResponse.class);
         if(response.getStatus() != 200) {
-            Group[] group = {};
-            return group;
+            return null;
         }
         String json = response.getEntity(String.class);
-        System.out.println(json);
         Gson gson = new Gson();
         return gson.fromJson(new JsonParser().parse(json).getAsJsonObject().get("groups"), Group[].class);
     }
