@@ -17,7 +17,7 @@ Collaide app for synchronizing files and folders
 
 - [x] sign in to collaide
 - [x] change pane
-- [ ] view repositories on collaide of the user
+- [x] view infos about the repositories which the connected user can handle
 - [ ] select one repo
 - [ ] select files and folders to observes
 - [ ] synchronize file and folders observed with the selected repo
