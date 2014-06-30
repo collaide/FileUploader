@@ -7,11 +7,12 @@ Collaide app for synchronizing files and folders
 
 ### Contibute
 
-1. Install maven
-2. run ` maven install package exec:java  `
+1. Install maven (` brew install maven ` for mac os x)
+2. fork it
 3. If you are not under mac os x comment the plugin ` os-app-bundle ` in pom.xml
+2. run ` mvn install package exec:java  `
 4. code it !
-5. push
+5. submit pull request
 
 ### features
 
