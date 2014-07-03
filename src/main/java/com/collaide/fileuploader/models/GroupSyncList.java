@@ -6,16 +6,21 @@
 
 package com.collaide.fileuploader.models;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  *
  * @author leo
  */
-public class GroupSyncList{
+public class GroupSyncList implements Serializable{
     private final HashMap<Integer, GroupSync> groupSyncs = new HashMap<Integer, GroupSync>();
     
     public void addGroupSync(GroupSync groupSync) {
         groupSyncs.put(groupSync.getGroup().getId(), groupSync);
+    }
+    
+    public GroupSync getGroupSync(int id) {
+        return groupSyncs.get(id);
     }
 }

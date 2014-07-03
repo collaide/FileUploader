@@ -5,10 +5,10 @@
  */
 package com.collaide.fileuploader.views;
 
+import com.collaide.fileuploader.models.CurrentUser;
 import com.collaide.fileuploader.models.Group;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.event.EventListenerList;
+import com.collaide.fileuploader.models.GroupSyncList;
 
 /**
  *
@@ -44,7 +44,11 @@ public class SingleGroupInfoPanel extends javax.swing.JPanel {
     }
 
     public void setGroup(Group group) {
-        jlGroupInfo.setText(group.getName());
+        String synchronizedMsg = "";
+        if(CurrentUser.getUser().getGroupSyncList().getGroupSync(group.getId()).isSynchronized()) {
+            synchronizedMsg = "is synchronized";
+        }
+        jlGroupInfo.setText(group.getName() + synchronizedMsg);
         this.group = group;
     }
 

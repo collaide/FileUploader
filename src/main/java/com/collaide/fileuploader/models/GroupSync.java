@@ -6,15 +6,15 @@
 
 package com.collaide.fileuploader.models;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 
 /**
  *
  * @author leo
  */
-public class GroupSync {
+public class GroupSync implements Serializable{
     private Group group;
-    private ArrayList<Folder> folders = new ArrayList<Folder>();
+    private String path;
 
     public Group getGroup() {
         return group;
@@ -24,21 +24,18 @@ public class GroupSync {
         this.group = group;
     }
 
-    public Folder[] getFolders() {
-        return (Folder[]) folders.toArray();
+    public String getPath() {
+        return path;
     }
 
-    public void setFolders(ArrayList<Folder> folders) {
-        this.folders = folders;
+    public void setPath(String path) {
+        this.path = path;
     }
     
-    public void addFolder(Folder folder) {
-        folders.add(folder);
+    public boolean isSynchronized() {
+        if (path == null) {
+            return false;
+        }
+        return true;
     }
-    
-    public int countFolders() {
-        return folders.size();
-    }
-    
-    
 }

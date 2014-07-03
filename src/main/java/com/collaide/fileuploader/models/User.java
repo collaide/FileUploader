@@ -10,7 +10,8 @@ public class User extends Model{
     private String email;
     private String password;
     private String token;
-
+    private GroupSyncList groupSyncList;
+    
     public User(String email, String password) {
         this.email = email;
         this.password = password;
@@ -50,5 +51,13 @@ public class User extends Model{
 
     String getToken() {
         return token;
+    }
+
+    public GroupSyncList getGroupSyncList() {
+        return groupSyncList;
+    }
+
+    public void setGroupSyncList(GroupSyncList groupSyncList) {
+        this.groupSyncList = groupSyncList;
     }
 }
