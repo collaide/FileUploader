@@ -4,9 +4,10 @@
  * and open the template in the editor.
  */
 
-package com.collaide.fileuploader.views;
+package com.collaide.fileuploader.views.listeners;
 
 import com.collaide.fileuploader.models.Group;
+import com.collaide.fileuploader.views.SingleGroupInfoPanel;
 import java.util.EventListener;
 
 /**
@@ -15,5 +16,5 @@ import java.util.EventListener;
  */
 public interface SingleGroupInfoListener extends EventListener{
     
-    public void modifyClicked(Group group);
+    public void modifyClicked(SingleGroupInfoPanel panel);
 }

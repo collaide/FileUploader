@@ -6,6 +6,7 @@
 
 package com.collaide.fileuploader.controllers;
 
+import com.collaide.fileuploader.models.CurrentUser;
 import com.collaide.fileuploader.views.App;
 
 /**
@@ -24,6 +25,7 @@ public class AppController {
     }
     
     public void signIn() {
+        CurrentUser.getUser().retrivePersonalData();
         app.addGroupPanel();
     }
 

@@ -32,4 +32,10 @@ public class CurrentUser {
     public static String getAuthParams() {
         return "user_email=" + getInstance().user.getEmail() + "&user_token=" + getInstance().user.getToken();
     }
+    
+    public static boolean isGroupSynchronized(int id) {
+        return getUser() != null && getUser().getGroupSyncList() != null
+                && getUser().getGroupSyncList().getGroupSync(id) != null
+                && getUser().getGroupSyncList().getGroupSync(id).isSynchronized();
+    }
 }

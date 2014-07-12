@@ -6,6 +6,7 @@
 package com.collaide.fileuploader.views;
 
 import com.collaide.fileuploader.controllers.AppController;
+import com.collaide.fileuploader.models.CurrentUser;
 import com.collaide.fileuploader.views.GroupPanel;
 import com.collaide.fileuploader.views.SignInPanel;
 import com.collaide.fileuploader.views.listeners.SignInListener;
@@ -31,14 +32,14 @@ public class App extends javax.swing.JFrame {
         root.add(signIn, BorderLayout.CENTER);
         setContentPane(root);
     }
-    
+
     public void addGroupPanel() {
         root.remove(signIn);
-                repaint();
-                root.add(new GroupPanel(), BorderLayout.CENTER);
-                invalidate();
-                validate();
-                repaint();
+        repaint();
+        root.add(new GroupPanel(), BorderLayout.CENTER);
+        invalidate();
+        validate();
+        repaint();
     }
 
     /**
@@ -64,6 +65,11 @@ public class App extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -78,6 +84,13 @@ public class App extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        System.out.println("window closing");
+        if (CurrentUser.getUser() != null) {
+            CurrentUser.getUser().savePersonalData();
+        }
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -116,8 +129,7 @@ public class App extends javax.swing.JFrame {
             }
         });
     }
-    
-    
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;

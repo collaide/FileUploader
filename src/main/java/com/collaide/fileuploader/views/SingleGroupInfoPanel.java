@@ -5,6 +5,7 @@
  */
 package com.collaide.fileuploader.views;
 
+import com.collaide.fileuploader.views.listeners.SingleGroupInfoListener;
 import com.collaide.fileuploader.models.CurrentUser;
 import com.collaide.fileuploader.models.Group;
 import javax.swing.event.EventListenerList;
@@ -44,12 +45,16 @@ public class SingleGroupInfoPanel extends javax.swing.JPanel {
     }
 
     public void setGroup(Group group) {
-        String synchronizedMsg = "";
-        if(CurrentUser.getUser().getGroupSyncList().getGroupSync(group.getId()).isSynchronized()) {
-            synchronizedMsg = "is synchronized";
-        }
-        jlGroupInfo.setText(group.getName() + synchronizedMsg);
         this.group = group;
+        setSynchronizedMessage();
+    }
+
+    public void setSynchronizedMessage() {
+        String synchronizedMsg = "";
+        if (CurrentUser.isGroupSynchronized(getGroup().getId())) {
+            synchronizedMsg = " is synchronized";
+        }
+        jlGroupInfo.setText("\"" + getGroup().getName() + "\"" + synchronizedMsg);
     }
 
     /**
@@ -96,7 +101,7 @@ public class SingleGroupInfoPanel extends javax.swing.JPanel {
 
     private void jbModifyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbModifyActionPerformed
         for (SingleGroupInfoListener listener : getSinigleGroupInfoListeners()) {
-            listener.modifyClicked(getGroup());
+            listener.modifyClicked(this);
         }
     }//GEN-LAST:event_jbModifyActionPerformed
 

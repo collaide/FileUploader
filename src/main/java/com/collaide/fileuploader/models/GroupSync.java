@@ -38,4 +38,6 @@ public class GroupSync implements Serializable{
         }
         return true;
     }
+    
+    public void synchronize() {}
 }

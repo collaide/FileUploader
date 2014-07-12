@@ -6,13 +6,14 @@
 
 package com.collaide.fileuploader.models;
 
+import java.io.Serializable;
 import java.net.URI;
 
 /**
  *
  * @author leo
  */
-public class Group {
+public class Group implements Serializable{
     private int id;
     private String name;
     private String uri;

@@ -23,4 +23,8 @@ public class GroupSyncList implements Serializable{
     public GroupSync getGroupSync(int id) {
         return groupSyncs.get(id);
     }
+    
+    public int size() {
+        return groupSyncs.size();
+    }
 }

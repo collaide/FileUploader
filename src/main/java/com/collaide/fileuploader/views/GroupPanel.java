@@ -5,12 +5,15 @@
  */
 package com.collaide.fileuploader.views;
 
+import com.collaide.fileuploader.views.listeners.SingleGroupInfoListener;
 import com.collaide.fileuploader.models.CurrentUser;
 import com.collaide.fileuploader.models.Group;
+import com.collaide.fileuploader.models.GroupSync;
 import com.collaide.fileuploader.requests.GroupsRequest;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -40,11 +43,37 @@ public class GroupPanel extends javax.swing.JPanel {
                 groupInfo.addSingleGroupInfoListener(new SingleGroupInfoListener() {
 
                     @Override
-                    public void modifyClicked(Group groupClicked) {
+                    public void modifyClicked(SingleGroupInfoPanel panel) {
+                        Group groupClicked = panel.getGroup();
+                        GroupSync gs = CurrentUser.getUser().getGroupSynchronized(groupClicked.getId());
+                        String path = "";
+                        if (gs != null) {
+                            path = gs.getPath();
+                        }
+                        if(gs == null) {
+                            gs = new GroupSync();
+                            gs.setGroup(groupClicked);
+                        }
+                        if (path == null || path.equals("")) {
+                            path = ".";
+                        }
+                        JFileChooser jf = new JFileChooser(path);
+                        jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                        jf.setAcceptAllFileFilterUsed(false);
+                        if (jf.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                            String selectedpath = jf.getSelectedFile().getAbsolutePath();
+                            if (selectedpath != null && !selectedpath.equals("")) {
+                                gs.setPath(selectedpath);
+                                gs.synchronize();
+                                CurrentUser.getUser().getGroupSyncList().addGroupSync(gs);
+                                panel.setSynchronizedMessage();
+                                System.out.println("Synchronized " + gs.getPath());
+                            }
+                        }
                     }
                 });
                 jpGroups.add(groupInfo, gbc);
-                
+
                 groupIndex++;
             }
             jlInfo.setText("");
@@ -122,9 +151,6 @@ public class GroupPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void clickModify(ActionEvent e) {
-    
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup bgRepositories;
