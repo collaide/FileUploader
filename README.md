@@ -7,17 +7,18 @@ Collaide app for synchronizing files and folders
 
 ### Contibute
 
-1. Install maven
-2. run ` maven install package exec:java  `
+1. Install maven (` brew install maven ` for mac os x)
+2. fork it
 3. If you are not under mac os x comment the plugin ` os-app-bundle ` in pom.xml
+2. run ` mvn install package exec:java  `
 4. code it !
-5. push
+5. submit pull request
 
 ### features
 
 - [x] sign in to collaide
 - [x] change pane
-- [ ] view repositories on collaide of the user
+- [x] view infos about the repositories which the connected user can handle
 - [ ] select one repo
 - [ ] select files and folders to observes
 - [ ] synchronize file and folders observed with the selected repo
