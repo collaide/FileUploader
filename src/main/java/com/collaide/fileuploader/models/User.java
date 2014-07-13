@@ -107,14 +107,13 @@ public class User extends Model {
     }
     
     public void savePersonalData() {
-        logger.debug("writing infos");
         try {
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getpersonalDataFile()));
             oos.writeObject(getGroupSyncList());
         } catch (IOException ex) {
             logger.error("Error while writing user datas: " + ex);
         }
-        logger.debug("to " + getpersonalDataFile().getAbsolutePath());
+        logger.debug("writing infos to " + getpersonalDataFile().getAbsolutePath());
     }
     
     public File getpersonalDataFile() {

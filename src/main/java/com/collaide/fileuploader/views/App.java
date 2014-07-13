@@ -26,6 +26,7 @@ public class App extends javax.swing.JFrame {
     private JPanel root;
     private SignInPanel signIn;
     private static final Logger log = Logger.getLogger(App.class);
+
     /**
      * Creates new form App
      */
@@ -90,10 +91,7 @@ public class App extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        System.out.println("window closing");
-        if (CurrentUser.getUser() != null) {
-            CurrentUser.getUser().savePersonalData();
-        }
+
     }//GEN-LAST:event_formWindowClosing
 
     /**
@@ -124,7 +122,16 @@ public class App extends javax.swing.JFrame {
         //</editor-fold>
         BasicConfigurator.configure();
         log.setLevel(Level.ALL);
-        log.info("Starting application");
+        log.debug("Starting application");
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (CurrentUser.getUser() != null) {
+                    CurrentUser.getUser().savePersonalData();
+                }
+                log.debug("Quitting application");
+            }
+        });
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
