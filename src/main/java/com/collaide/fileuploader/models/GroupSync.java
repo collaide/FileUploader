@@ -65,6 +65,7 @@ public class GroupSync implements Serializable {
 
             @Override
             public void fileCreated(Path child) {
+                
             }
 
             @Override

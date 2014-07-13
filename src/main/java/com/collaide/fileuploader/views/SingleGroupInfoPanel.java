@@ -18,7 +18,7 @@ import com.collaide.fileuploader.models.GroupSyncList;
 public class SingleGroupInfoPanel extends javax.swing.JPanel {
 
     private Group group;
-    private EventListenerList eventsList = new EventListenerList();
+    private final EventListenerList eventsList = new EventListenerList();
 
     /**
      * Creates new form SingleGroupInfoPanel
@@ -29,7 +29,10 @@ public class SingleGroupInfoPanel extends javax.swing.JPanel {
 
     public SingleGroupInfoPanel(Group group) {
         this();
-        setGroup(group);
+        this.group = group;
+        if(group != null && CurrentUser.isGroupSynchronized(group.getId())) {
+            CurrentUser.getUser().getGroupSyncList().getGroupSync(group.getId()).startObserving();
+        }
     }
 
     public void addSingleGroupInfoListener(SingleGroupInfoListener listener) {
