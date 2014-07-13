@@ -104,7 +104,7 @@ public class SignInPanel extends javax.swing.JPanel {
 
     private void jbSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbSignInActionPerformed
         if(UsersRequest.signIn(jtfEmail.getText(), String.valueOf(jpfUserPassword.getPassword()))) {
-            AppController.getInstance().signIn();
+            AppController.getInstance().signInSuccess();
         } else {
             JOptionPane.showMessageDialog(this, "Wrong combination email/password", "Sign in error",  JOptionPane.INFORMATION_MESSAGE);
         }

@@ -1,5 +1,6 @@
 package com.collaide.fileuploader.models;
 
+import com.google.gson.annotations.Expose;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -15,10 +16,15 @@ import java.util.logging.Logger;
  */
 public class User extends Model {
 
+    @Expose
     private int id;
+    @Expose
     private String name;
+    @Expose
     private String email;
+    @Expose
     private String password;
+    @Expose
     private String token;
     private GroupSyncList groupSyncList;
     private File dataPath;

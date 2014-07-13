@@ -65,6 +65,7 @@ public class GroupPanel extends javax.swing.JPanel {
                             if (selectedpath != null && !selectedpath.equals("")) {
                                 gs.setPath(selectedpath);
                                 gs.synchronize();
+                                gs.startObserving();
                                 CurrentUser.getUser().getGroupSyncList().addGroupSync(gs);
                                 panel.setSynchronizedMessage();
                                 System.out.println("Synchronized " + gs.getPath());

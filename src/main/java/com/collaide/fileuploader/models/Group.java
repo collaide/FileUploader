@@ -6,6 +6,7 @@
 
 package com.collaide.fileuploader.models;
 
+import com.google.gson.annotations.Expose;
 import java.io.Serializable;
 import java.net.URI;
 
@@ -14,8 +15,11 @@ import java.net.URI;
  * @author leo
  */
 public class Group implements Serializable{
+    @Expose
     private int id;
+    @Expose
     private String name;
+    @Expose
     private String uri;
 
     public int getId() {

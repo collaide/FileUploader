@@ -7,7 +7,6 @@ package com.collaide.fileuploader.requests;
 
 import com.collaide.fileuploader.models.CurrentUser;
 import com.collaide.fileuploader.models.User;
-import com.google.gson.JsonParser;
 import com.sun.jersey.api.client.ClientResponse;
 import javax.ws.rs.core.MediaType;
 

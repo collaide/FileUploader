@@ -24,7 +24,7 @@ public class AppController {
         return instance;
     }
     
-    public void signIn() {
+    public void signInSuccess() {
         CurrentUser.getUser().retrivePersonalData();
         app.addGroupPanel();
     }

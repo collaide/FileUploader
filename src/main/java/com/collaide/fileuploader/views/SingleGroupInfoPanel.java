@@ -55,7 +55,7 @@ public class SingleGroupInfoPanel extends javax.swing.JPanel {
             synchronizedMsg = " is synchronized";
         }
         jlGroupInfo.setText("\"" + getGroup().getName() + "\"" + synchronizedMsg);
-    }
+    }       
 
     /**
      * This method is called from within the constructor to initialize the form.
