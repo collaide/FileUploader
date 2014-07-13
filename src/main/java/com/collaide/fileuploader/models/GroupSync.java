@@ -10,6 +10,8 @@ import com.collaide.fileuploader.views.listeners.FileChangeListener;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
 
 /**
  *
@@ -20,6 +22,7 @@ public class GroupSync implements Serializable {
     private Group group;
     private String path;
     private transient FilesSynchronization synchronization;
+    private transient static final Logger logger = Logger.getLogger(GroupSync.class);
     
 
     public Group getGroup() {
@@ -65,7 +68,8 @@ public class GroupSync implements Serializable {
 
             @Override
             public void fileCreated(Path child) {
-                
+              logger.debug("File created");
+                System.out.println("file created");
             }
 
             @Override

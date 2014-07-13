@@ -24,9 +24,8 @@ import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.event.EventListenerList;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -39,25 +38,24 @@ public class FilesSynchronization extends Thread {
     private final Map<WatchKey, Path> keys = new HashMap<WatchKey, Path>();
     private boolean stopObserving;
     private EventListenerList events = new EventListenerList();
+    private static final Logger logger = Logger.getLogger(FilesSynchronization.class);
 
     public FilesSynchronization(String path) {
-        System.out.println("New sync");
         stopObserving = false;
         try {
             watcher = FileSystems.getDefault().newWatchService();
             watchDir = FileSystems.getDefault().getPath(path);
         } catch (IOException ex) {
-            Logger.getLogger(GroupSync.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error while starting file observation: " + ex);
         }
     }
 
     @Override
     public void run() {
-        System.out.println("running");
         try {
             registerAll(watchDir);
         } catch (IOException ex) {
-            Logger.getLogger(GroupSync.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         processEvents();
     }
@@ -68,7 +66,7 @@ public class FilesSynchronization extends Thread {
     private void register(Path dir) throws IOException {
         WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
         keys.put(key, dir);
-        System.out.println("registering " + dir.getFileName());
+        logger.debug("registering " + dir.getFileName());
     }
 
     /**
@@ -90,9 +88,7 @@ public class FilesSynchronization extends Thread {
      * Process all events for keys queued to the watcher
      */
     private void processEvents() {
-        System.out.println("processing");
         while (!stopObserving) {
-            System.out.println("entering while loop. Waiting for a key");
             // wait for key to be signalled
             WatchKey key;
             try {
@@ -100,10 +96,9 @@ public class FilesSynchronization extends Thread {
             } catch (InterruptedException x) {
                 return;
             }
-            System.out.println("key found");
             Path dir = keys.get(key);
             if (dir == null) {
-                System.err.println("WatchKey not recognized!!");
+                logger.info("WatchKey not recognized!! " + key);
                 continue;
             }
 
@@ -112,6 +107,7 @@ public class FilesSynchronization extends Thread {
 
                 // TBD - provide example of how OVERFLOW event is handled
                 if (kind == OVERFLOW) {
+                    logger.info("Overflow for the dir " + dir);
                     continue;
                 }
 
@@ -121,14 +117,14 @@ public class FilesSynchronization extends Thread {
                 Path child = dir.resolve(name);
 
                 // print out event
-                System.out.format("%s: %s\n", event.kind().name(), child);
-                for(FileChangeListener listener : getFileChangeListeners()) {
+                logger.debug("event.kind().name(): " + child);
+                for (FileChangeListener listener : getFileChangeListeners()) {
                     listener.fileChanged(event.kind(), child);
-                    if(kind == ENTRY_CREATE) {
+                    if (kind == ENTRY_CREATE) {
                         listener.fileCreated(child);
-                    } else if(kind == ENTRY_MODIFY) {
+                    } else if (kind == ENTRY_MODIFY) {
                         listener.fileModified(child);
-                    } else if(kind == ENTRY_DELETE) {
+                    } else if (kind == ENTRY_DELETE) {
                         listener.fileDeleted(child);
                     }
                 }
@@ -169,11 +165,11 @@ public class FilesSynchronization extends Thread {
     public void setStopObserving(boolean stopObserving) {
         this.stopObserving = stopObserving;
     }
-    
+
     public void addFileChangeListener(FileChangeListener listener) {
         events.add(FileChangeListener.class, listener);
     }
-    
+
     public FileChangeListener[] getFileChangeListeners() {
         return events.getListeners(FileChangeListener.class);
     }

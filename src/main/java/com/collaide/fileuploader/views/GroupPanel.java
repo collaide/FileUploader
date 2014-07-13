@@ -14,12 +14,14 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import javax.swing.JFileChooser;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author leo
  */
 public class GroupPanel extends javax.swing.JPanel {
+    private static final Logger logger = Logger.getLogger(GroupPanel.class);
 
     /**
      * Creates new form GroupPanel
@@ -69,7 +71,7 @@ public class GroupPanel extends javax.swing.JPanel {
                                 gs.startObserving();
                                 CurrentUser.getUser().getGroupSyncList().addGroupSync(gs);
                                 panel.setSynchronizedMessage();
-                                System.out.println("Synchronized " + gs.getPath());
+                                logger.debug("Synchronized " + gs.getPath());
                             }
                         }
                     }

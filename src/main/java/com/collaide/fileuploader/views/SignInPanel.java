@@ -9,6 +9,8 @@ package com.collaide.fileuploader.views;
 import com.collaide.fileuploader.controllers.AppController;
 import com.collaide.fileuploader.requests.UsersRequest;
 import javax.swing.JOptionPane;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  *

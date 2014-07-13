@@ -7,15 +7,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author leo
  */
 public class User extends Model {
-
+    
     @Expose
     private int id;
     @Expose
@@ -29,100 +28,103 @@ public class User extends Model {
     private GroupSyncList groupSyncList;
     private File dataPath;
     private File userDataPath;
-
+    private static final Logger logger = Logger.getLogger(User.class);
+    
     public User(String email, String password) {
         this.email = email;
         this.password = password;
     }
-
+    
     public String getEmail() {
         return email;
     }
-
+    
     public void setEmail(String email) {
         this.email = email;
     }
-
+    
     public String getPassword() {
         return password;
     }
-
+    
     public void setPassword(String password) {
         this.password = password;
     }
-
+    
     public int getId() {
         return id;
     }
-
+    
     public void setId(int id) {
         this.id = id;
     }
-
+    
     public String getName() {
         return name;
     }
-
+    
     public void setName(String name) {
         this.name = name;
     }
-
+    
     String getToken() {
         return token;
     }
-
+    
     public GroupSyncList getGroupSyncList() {
         return groupSyncList;
     }
-
+    
     public void setGroupSyncList(GroupSyncList groupSyncList) {
         this.groupSyncList = groupSyncList;
     }
     
     public GroupSync getGroupSynchronized(int id) {
-        if(groupSyncList != null) {
+        if (groupSyncList != null) {
             return groupSyncList.getGroupSync(id);
         }
         return null;
     }
-
+    
     public void retrivePersonalData() {
         File personalData = getpersonalDataFile();
-        System.out.println("retrive personal datas " + personalData.getAbsolutePath());
+        logger.debug("retrive personal datas " + personalData.getAbsolutePath());
         if (personalData.exists()) {
-            System.out.println("file exists");
+            logger.debug("File exists");
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(personalData));
-                setGroupSyncList((GroupSyncList)ois.readObject());
+                setGroupSyncList((GroupSyncList) ois.readObject());
             } catch (IOException ex) {
-                Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Error while opening file: " + ex);
             } catch (ClassNotFoundException ex) {
-                Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Class not found when reading datas from file: " + 
+                        personalData.getAbsolutePath() + " exception: " + ex);
             }
         } else {
+            logger.debug("File do no exists");
             setGroupSyncList(new GroupSyncList());
         }
     }
     
     public void savePersonalData() {
-        System.out.println("writing infos");
+        logger.debug("writing infos");
         try {
-            ObjectOutputStream oos =  new ObjectOutputStream(new FileOutputStream(getpersonalDataFile())) ;
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getpersonalDataFile()));
             oos.writeObject(getGroupSyncList());
         } catch (IOException ex) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error while writing user datas: " + ex);
         }
-        System.out.println("to " + getpersonalDataFile().getAbsolutePath());
+        logger.debug("to " + getpersonalDataFile().getAbsolutePath());
     }
     
     public File getpersonalDataFile() {
-        if(dataPath == null) {
+        if (dataPath == null) {
             dataPath = new File(System.getProperty("user.home"), ".collaide");
-            if(!dataPath.exists()) {
+            if (!dataPath.exists()) {
                 dataPath.mkdir();
             }
         }
-        if(userDataPath == null) {
+        if (userDataPath == null) {
             userDataPath = new File(dataPath, String.valueOf(getId()));
         }
         return userDataPath;
