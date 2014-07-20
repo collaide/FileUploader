@@ -1,5 +1,7 @@
-package com.collaide.fileuploader.models;
-
+package com.collaide.fileuploader.models.user;
+import com.collaide.fileuploader.models.GroupSync;
+import com.collaide.fileuploader.models.GroupSyncList;
+import com.collaide.fileuploader.models.Model;
 import com.google.gson.annotations.Expose;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +27,8 @@ public class User extends Model {
     private String password;
     @Expose
     private String token;
+    @Expose
+    private String csrf;
     private GroupSyncList groupSyncList;
     private File dataPath;
     private File userDataPath;
@@ -73,6 +77,14 @@ public class User extends Model {
     
     public GroupSyncList getGroupSyncList() {
         return groupSyncList;
+    }
+
+    public String getCsrf() {
+        return csrf;
+    }
+
+    public void setCsrf(String csrf) {
+        this.csrf = csrf;
     }
     
     public void setGroupSyncList(GroupSyncList groupSyncList) {

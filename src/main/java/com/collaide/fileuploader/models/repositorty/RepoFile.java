@@ -4,12 +4,13 @@
  * and open the template in the editor.
  */
 
-package com.collaide.fileuploader.models;
+package com.collaide.fileuploader.models.repositorty;
 
 /**
  *
  * @author leo
  */
-class RepoFolder {
+public class RepoFile extends RepoItems{
+    
     
 }

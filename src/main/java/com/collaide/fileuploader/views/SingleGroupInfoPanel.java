@@ -6,7 +6,7 @@
 package com.collaide.fileuploader.views;
 
 import com.collaide.fileuploader.views.listeners.SingleGroupInfoListener;
-import com.collaide.fileuploader.models.CurrentUser;
+import com.collaide.fileuploader.models.user.CurrentUser;
 import com.collaide.fileuploader.models.Group;
 import javax.swing.event.EventListenerList;
 import com.collaide.fileuploader.models.GroupSyncList;

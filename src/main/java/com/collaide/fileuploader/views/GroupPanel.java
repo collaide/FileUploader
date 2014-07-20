@@ -6,13 +6,12 @@
 package com.collaide.fileuploader.views;
 
 import com.collaide.fileuploader.views.listeners.SingleGroupInfoListener;
-import com.collaide.fileuploader.models.CurrentUser;
+import com.collaide.fileuploader.models.user.CurrentUser;
 import com.collaide.fileuploader.models.Group;
 import com.collaide.fileuploader.models.GroupSync;
 import com.collaide.fileuploader.requests.GroupsRequest;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
 import javax.swing.JFileChooser;
 import org.apache.log4j.Logger;
 
@@ -57,7 +56,7 @@ public class GroupPanel extends javax.swing.JPanel {
                             gs.setGroup(groupClicked);
                         }
                         if (path == null || path.equals("")) {
-                            path = ".";
+                            path = System.getProperty("user.home");
                         }
                         JFileChooser jf = new JFileChooser(path);
                         jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);

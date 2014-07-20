@@ -6,7 +6,7 @@
 package com.collaide.fileuploader.views;
 
 import com.collaide.fileuploader.controllers.AppController;
-import com.collaide.fileuploader.models.CurrentUser;
+import com.collaide.fileuploader.models.user.CurrentUser;
 import com.collaide.fileuploader.views.GroupPanel;
 import com.collaide.fileuploader.views.SignInPanel;
 import com.collaide.fileuploader.views.listeners.SignInListener;

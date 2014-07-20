@@ -5,7 +5,7 @@
  */
 package com.collaide.fileuploader.requests;
 
-import com.collaide.fileuploader.models.CurrentUser;
+import com.collaide.fileuploader.models.user.CurrentUser;
 import com.collaide.fileuploader.models.Group;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
