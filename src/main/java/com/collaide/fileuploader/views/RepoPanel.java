@@ -79,11 +79,11 @@ public class RepoPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbSyncActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbSyncActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_jbSyncActionPerformed
 
     private void jbNewFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbNewFolderActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_jbNewFolderActionPerformed
 
 

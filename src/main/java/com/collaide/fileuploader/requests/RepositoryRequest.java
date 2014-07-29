@@ -5,7 +5,6 @@
  */
 package com.collaide.fileuploader.requests;
 
-import com.collaide.fileuploader.models.Group;
 import com.collaide.fileuploader.models.repositorty.RepoFile;
 import com.collaide.fileuploader.models.repositorty.RepoFolder;
 import com.collaide.fileuploader.models.repositorty.RepoItems;
@@ -39,6 +38,11 @@ public class RepositoryRequest extends Collaide {
         this.uri = "groups/" + String.valueOf(groupID) + "/repo_items/";
     }
 
+    /**
+     * get the root of a repository
+     * TODO: test it
+     * @return Repository a set of folders and files present on the server
+     */
     public Repository index() {
         ClientResponse response = request(uri)
                 .accept(MediaType.APPLICATION_JSON)
@@ -46,6 +50,12 @@ public class RepositoryRequest extends Collaide {
         return getOrIndex(response);
     }
 
+    /**
+     * get infos about a elements of a repository represented by an id
+     * TODO: test it
+     * @param id the id of the elements
+     * @return Repository a set of folders and files present on the server
+     */
     public Repository get(int id) {
         ClientResponse response = request(getRepoItemUrl(id))
                 .accept(MediaType.APPLICATION_JSON)
@@ -53,6 +63,14 @@ public class RepositoryRequest extends Collaide {
         return getOrIndex(response);
     }
 
+    /**
+     * download a file or a folder from the server to the disk
+     * a folder is downloaded as a zip and the unzipped
+     * TODO: test it
+     * @param url the URL of the repo item to download
+     * @param folderToSave the folderin which to save the downloaded item
+     * @throws IOException 
+     */
     public void download(String url, String folderToSave) throws IOException {
         ClientResponse response = request(url)
                 .accept(MediaType.APPLICATION_JSON)
@@ -89,6 +107,12 @@ public class RepositoryRequest extends Collaide {
     
     
 
+    /**
+     * Get a list of items(files or folders) from the server
+     * TODO: implement the case when not at the root of the repository
+     * @param response The Request to execute
+     * @return a class <code>Repository</code> containing a list of files and a list of folders
+     */
     private Repository getOrIndex(ClientResponse response) {
         if (response.getStatus() != 200) {
             return null;

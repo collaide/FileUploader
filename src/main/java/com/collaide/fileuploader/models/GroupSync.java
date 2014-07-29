@@ -46,6 +46,7 @@ public class GroupSync implements Serializable {
     private transient static final Logger logger = Logger.getLogger(GroupSync.class);
     private transient RepositoryRequest repositoryRequest;
     private transient FilesRequest filesRequest;
+    private transient FolderRequest folderRequest;
 
     public Group getGroup() {
         return group;
@@ -67,47 +68,73 @@ public class GroupSync implements Serializable {
         return path != null;
     }
 
+    /**
+     * Synchronize the folder indicate by the instance variable
+     * <code>path</code>
+     */
     public void synchronize() {
         repositoryRequest = new RepositoryRequest(group.getId());
         filesRequest = new FilesRequest(group.getId());
+        folderRequest = new FolderRequest(group.getId());
         synchronizeALL(path, repositoryRequest.index(), null);
     }
 
-    public void synchronizeALL(String startPath, Repository serverRepo, RepoFolder currentServerFolder) {
+    /**
+     * Recursive function for synchronizing all elements and sub-elements of a
+     * directory
+     *
+     * @param directoryToSync The directory to sync
+     * @param serverRepo Files and folders present on the server for the
+     * directory to sync
+     * @param currentServerFolder The information about the directory on the
+     * server side
+     */
+    public void synchronizeALL(String directoryToSync, Repository serverRepo, RepoFolder currentServerFolder) {
         try {
-            File folderToSync = new File(startPath);
+            logger.debug("Synchronizing the dir: " + directoryToSync);
+            File folderToSync = new File(directoryToSync);
             Map<String, RepoFile> serverFiles = serverRepo.getServerFiles();
             Map<String, RepoFolder> serverFolders = serverRepo.getServerFolders();
             int repoId = 0;
-            if (currentServerFolder != null) {
-                repoId = currentServerFolder.getId();
+            if (currentServerFolder != null) { // we are not on the root repository
+                repoId = currentServerFolder.getId(); // id of the directory on the server
             }
             // sync items present on local with the server
-            for (File fileMd5 : folderToSync.listFiles()) {
-                if (fileMd5.isDirectory()) {
-                    logger.debug(fileMd5.getName() + " is a dir. Synchronizing");
+            for (File itemToSync : folderToSync.listFiles()) {
+                if (itemToSync.isDirectory()) { // is a directory
+                    logger.debug(itemToSync.getName() + " is a dir. Synchronizing");
                     RepoFolder nextFolder;
-                    if(!serverFolders.containsKey(fileMd5.getName())) {// dir n'existe pas sur le serveur
-                        nextFolder = FolderRequest.create(fileMd5.getName());
-                    } else { // existe sur le serveur
-                        nextFolder = serverFolders.get(fileMd5.getName());
+                    if (serverFolders.containsKey(itemToSync.getName())) { // itemTo Sync existe sur le serveur
+                        logger.debug(itemToSync.getName() + " exist on the server");
+                        nextFolder = serverFolders.get(itemToSync.getName());
+                    } else {// itemToSync n'existe pas sur le serveur
+                        nextFolder = folderRequest.create(itemToSync.getName());
+                        logger.debug(itemToSync.getName() + "has been created. " + nextFolder.getId());
                     }
-                    synchronizeALL(fileMd5.getPath(), repositoryRequest.get(nextFolder.getId()), nextFolder);
-                } else {
-                    FileInputStream fis = new FileInputStream(fileMd5);
+                    serverFolders.remove(itemToSync.getName()); // le dossier existe en local. On l'enlève de la liste à synchronizer.
+                    synchronizeALL(itemToSync.getPath(), repositoryRequest.get(nextFolder.getId()), nextFolder);
+                } else { // is a file
+                    logger.debug(itemToSync.getName() + " is a file.");
+                    FileInputStream fis = new FileInputStream(itemToSync);
                     String md5 = DigestUtils.md5Hex(fis);
                     if (!serverFiles.containsKey(md5)) { // le fichier local n'est pas sur le serveur
-                        filesRequest.create(fileMd5, repoId);
-                        serverFiles.remove(md5);
-                    } // le fichier local est mnt sur le serveur
+                        logger.debug(itemToSync.getName() + " is not on the server. " + md5);
+                        filesRequest.create(itemToSync, repoId); // le fichier local est mnt sur le serveur
+                        logger.debug(itemToSync.getName() + " is created.");
+                    } else {
+                        if (!serverFiles.get(md5).getName().
+                                equals(itemToSync.getName())) { // le fichier local est présent sur le serveur avec le même md5 mais pas le même nom.
+                            filesRequest.create(itemToSync, repoId); // on synchronize
+                        }
+                        serverFiles.remove(md5); // le fichier existe en local. On l'enlève de la liste à synchronizer.
+                    }
                     fis.close();
-                    logger.debug("digest for: " + fileMd5.getName() + " " + md5);
                 }
             }
-            iterateThroughServerItems(serverFiles, startPath); // sync files present on server but not on local
-            iterateThroughServerItems(serverFolders, startPath); // sync folder with content present on server but not on local
+            iterateThroughServerItems(serverFiles, directoryToSync); // sync files present on server but not on local
+            iterateThroughServerItems(serverFolders, directoryToSync); // sync folders with content present on server but not on local
         } catch (IOException ex) {
-            logger.error("Error while generating checksum: ", ex);
+            logger.error("Error with a file: ", ex);
 
         }
     }
@@ -116,11 +143,13 @@ public class GroupSync implements Serializable {
         Iterator it = map.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pairs = (Map.Entry) it.next();
-            RepoItems serverFile = (RepoItems)pairs.getValue();
-            repositoryRequest.download(serverFile.getDownload(), folder);
+            RepoItems serverItem = (RepoItems) pairs.getValue();
+            repositoryRequest.download(serverItem.getDownload(), folder);
+            logger.debug(serverItem.getName() + " is saved on disk. " + folder);
             it.remove(); // avoids a ConcurrentModificationException
         }
     }
+
     public void startObserving() {
         if (synchronization == null) {
             synchronization = new FilesSynchronization(path);

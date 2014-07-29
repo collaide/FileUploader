@@ -7,6 +7,9 @@
 package com.collaide.fileuploader.requests;
 
 import com.collaide.fileuploader.models.repositorty.RepoFolder;
+import com.collaide.fileuploader.models.user.CurrentUser;
+import com.sun.jersey.api.client.ClientResponse;
+import javax.ws.rs.core.MediaType;
 
 /**
  *
@@ -18,7 +21,19 @@ public class FolderRequest extends RepositoryRequest{
         super(groupID);
     }
     
-    public static RepoFolder create(String name) {
+    /**
+     * Create a folder on a repository
+     * TODO: finish implementation
+     * TODO: test it
+     * @param name the name of the folder to create
+     * @return RepoFolder infos about the folder created.
+     */
+    public RepoFolder create(String name) {
+        ClientResponse response = request(getGroupUri() + "/folder?" + CurrentUser.getAuthParams()).
+                type(MediaType.APPLICATION_JSON).
+                accept(MediaType.APPLICATION_JSON).
+                post(ClientResponse.class);
+        
         return null;
     }
     

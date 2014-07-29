@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -38,21 +37,27 @@ public class FilesRequest extends RepositoryRequest implements Runnable {
         super(groupID);
     }
 
+    /**
+     * send a file on the server
+     * TODO: test multi-threading
+     * @param file the file to send
+     * @param id the id of the folder (on the server) to send the file. If the
+     * id is equal to zero, the file is send to the root repository
+     */
     public void create(File file, int id) {
         this.fileToSend = file;
         this.idRepo = id;
-        this.fileToSend = file;
         sendFile();
     }
-    
+
     private void sendFile() {
-        System.out.println("starting sending file " + Thread.currentThread().getName());        
+        System.out.println("starting sending file " + Thread.currentThread().getName());
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-            HttpPost httppost = new HttpPost(getBase_uri() + getGroupUri() + "/file.json?" + 
-                    CurrentUser.getAuthParams() + "&authenticity_token=" + 
-                    CurrentUser.getUser().getCsrf());
+            HttpPost httppost = new HttpPost(getBase_uri() + getGroupUri() + "/file.json?"
+                    + CurrentUser.getAuthParams() + "&authenticity_token="
+                    + CurrentUser.getUser().getCsrf());
             FileBody bin = new FileBody(fileToSend);
             MultipartEntityBuilder reqEntity = MultipartEntityBuilder.create()
                     .addPart("repo_file[file]", bin)
@@ -75,10 +80,9 @@ public class FilesRequest extends RepositoryRequest implements Runnable {
         }
     }
 
-
     @Override
     public void run() {
-        
+
 //        try {
 //            System.out.println("sdfvlsajdhvfjlashdfvjlhasdvfhjlsadvfl");
 //            RepoFile repoFile = new RepoFile();
