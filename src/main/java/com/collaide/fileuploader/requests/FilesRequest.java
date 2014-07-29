@@ -47,8 +47,6 @@ public class FilesRequest extends RepositoryRequest implements Runnable {
     public void create(File file, int id) {
         this.fileToSend = file;
         this.idRepo = id;
-        System.out.println("sdfvlsajdhvfjlashdfvjlhasdvfhjlsadvfl");
-        RepoFile repoFile = new RepoFile();
         if (idRepo != 0) {
             //createUri = getRepoItemUrl(idRepo);
         }
