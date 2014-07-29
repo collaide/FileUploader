@@ -42,12 +42,10 @@ public class FilesRequest extends RepositoryRequest implements Runnable {
         this.fileToSend = file;
         this.idRepo = id;
         this.fileToSend = file;
-        new Thread(this).start();
+        sendFile();
     }
-
-
-    @Override
-    public void run() {
+    
+    private void sendFile() {
         System.out.println("starting sending file " + Thread.currentThread().getName());        
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -75,6 +73,12 @@ public class FilesRequest extends RepositoryRequest implements Runnable {
                 logger.error(ex);
             }
         }
+    }
+
+
+    @Override
+    public void run() {
+        
 //        try {
 //            System.out.println("sdfvlsajdhvfjlashdfvjlhasdvfhjlsadvfl");
 //            RepoFile repoFile = new RepoFile();
