@@ -83,6 +83,12 @@ public class RepositoryRequest extends Collaide {
         this.groupID = groupID;
     }
 
+    public String getGroupUri() {
+        return uri;
+    }
+    
+    
+
     private Repository getOrIndex(ClientResponse response) {
         if (response.getStatus() != 200) {
             return null;

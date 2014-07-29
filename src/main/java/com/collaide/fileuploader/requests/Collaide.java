@@ -23,4 +23,10 @@ public class Collaide {
         WebResource ressource = client.resource(base_uri + uri);
         return ressource.accept("application/json");
     }
+
+    public static String getBase_uri() {
+        return base_uri;
+    }
+    
+    
 }
