@@ -12,7 +12,7 @@ import java.io.File;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -22,6 +22,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.logging.log4j.LogManager;
 
 /**
  *
@@ -31,7 +32,7 @@ public class FilesRequest extends RepositoryRequest implements Runnable {
 
     private File fileToSend;
     private int idRepo;
-    private static final Logger logger = Logger.getLogger(FilesRequest.class);
+    private static final Logger logger = LogManager.getLogger(FilesRequest.class);
 
     public FilesRequest(int groupID) {
         super(groupID);
@@ -51,7 +52,7 @@ public class FilesRequest extends RepositoryRequest implements Runnable {
     }
 
     private void sendFile() {
-        System.out.println("starting sending file " + Thread.currentThread().getName());
+        logger.debug("starting sending file");
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
@@ -68,7 +69,7 @@ public class FilesRequest extends RepositoryRequest implements Runnable {
             httppost.setEntity(reqEntity.build());
             httppost.setHeader("X-CSRF-Token", CurrentUser.getUser().getCsrf());
             httpclient.execute(httppost);
-            System.out.println("stop sending file " + Thread.currentThread().getName());
+            logger.debug("stop sending file");
         } catch (IOException ex) {
             logger.error(ex);
         } finally {

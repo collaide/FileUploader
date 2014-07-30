@@ -8,10 +8,8 @@ package com.collaide.fileuploader.requests;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -22,7 +20,7 @@ import org.junit.Test;
 public class FileRequestTest {
 
     private int countSendFile = 0;
-    private final static Logger logger = Logger.getLogger(FileRequestTest.class);
+    private final static Logger logger = LogManager.getLogger(FileRequestTest.class);
 
     public FileRequestTest() {
     }
@@ -40,7 +38,7 @@ public class FileRequestTest {
 
     private void sendAFile(FilesRequest f) {
         try {
-            System.out.println("Sending the File: " + countSendFile);
+            logger.debug("Sending the File: " + countSendFile);
             countSendFile++;
             Files.copy(getTestFile().toPath(), getDestFile(countSendFile).toPath());
             f.create(getDestFile(countSendFile), 0);

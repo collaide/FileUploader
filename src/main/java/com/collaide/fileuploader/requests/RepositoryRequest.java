@@ -21,7 +21,8 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import javax.ws.rs.core.MediaType;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -31,7 +32,7 @@ public class RepositoryRequest extends Collaide {
 
     private int groupID;
     protected final String uri;
-    private static final Logger logger = Logger.getLogger(RepositoryRequest.class);
+    private static final Logger logger = LogManager.getLogger(RepositoryRequest.class);
 
     public RepositoryRequest(int groupID) {
         this.groupID = groupID;

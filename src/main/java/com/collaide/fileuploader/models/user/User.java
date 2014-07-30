@@ -9,7 +9,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -32,7 +33,7 @@ public class User extends Model {
     private GroupSyncList groupSyncList;
     private File dataPath;
     private File userDataPath;
-    private static final Logger logger = Logger.getLogger(User.class);
+    private static final Logger logger = LogManager.getLogger(User.class);
     
     public User(String email, String password) {
         this.email = email;

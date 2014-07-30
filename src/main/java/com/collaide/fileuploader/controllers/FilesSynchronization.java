@@ -25,7 +25,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.event.EventListenerList;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -38,7 +39,7 @@ public class FilesSynchronization extends Thread {
     private final Map<WatchKey, Path> keys = new HashMap<WatchKey, Path>();
     private boolean stopObserving;
     private EventListenerList events = new EventListenerList();
-    private static final Logger logger = Logger.getLogger(FilesSynchronization.class);
+    private static final Logger logger = LogManager.getLogger(FilesSynchronization.class);
 
     public FilesSynchronization(String path) {
         stopObserving = false;

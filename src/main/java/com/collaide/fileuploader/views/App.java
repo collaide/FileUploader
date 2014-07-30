@@ -12,10 +12,8 @@ import com.collaide.fileuploader.views.SignInPanel;
 import com.collaide.fileuploader.views.listeners.SignInListener;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -25,7 +23,7 @@ public class App extends javax.swing.JFrame {
 
     private JPanel root;
     private SignInPanel signIn;
-    private static final Logger log = Logger.getLogger(App.class);
+    private static final Logger log = LogManager.getLogger(App.class);
 
     /**
      * Creates new form App
@@ -120,8 +118,7 @@ public class App extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        BasicConfigurator.configure();
-        log.setLevel(Level.ALL);
+        
         log.debug("Starting application");
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

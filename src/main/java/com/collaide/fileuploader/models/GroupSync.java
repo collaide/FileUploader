@@ -17,22 +17,14 @@ import com.collaide.fileuploader.views.listeners.FileChangeListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Level;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -43,7 +35,7 @@ public class GroupSync implements Serializable {
     private Group group;
     private String path;
     private transient FilesSynchronization synchronization;
-    private transient static final Logger logger = Logger.getLogger(GroupSync.class);
+    private transient static final Logger logger = LogManager.getLogger(GroupSync.class);
     private transient RepositoryRequest repositoryRequest;
     private transient FilesRequest filesRequest;
     private transient FolderRequest folderRequest;

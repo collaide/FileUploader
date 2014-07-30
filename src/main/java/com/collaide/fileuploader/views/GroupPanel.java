@@ -13,14 +13,15 @@ import com.collaide.fileuploader.requests.GroupsRequest;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.JFileChooser;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author leo
  */
 public class GroupPanel extends javax.swing.JPanel {
-    private static final Logger logger = Logger.getLogger(GroupPanel.class);
+    private static final Logger logger = LogManager.getLogger(GroupPanel.class);
 
     /**
      * Creates new form GroupPanel
