@@ -22,17 +22,22 @@ public class FolderRequest extends RepositoryRequest {
     }
 
     /**
-     * Create a folder on a repository TODO: finish implementation TODO: test it
+     * Create a folder on a repository TODO: finish implementation
+     * <br/>
+     * TODO: test it
      *
      * @param name the name of the folder to create
      * @return RepoFolder infos about the folder created.
+     * @throws com.collaide.fileuploader.requests.repository.FolderNotCreatedException
      */
-    public RepoFolder create(String name) {
+    public RepoFolder create(String name) throws FolderNotCreatedException {
         ClientResponse response = request(getGroupUri() + "/folder?" + CurrentUser.getAuthParams()).
                 type(MediaType.APPLICATION_JSON).
                 accept(MediaType.APPLICATION_JSON).
                 post(ClientResponse.class);
-
+        if (response.getStatus() != 204) {
+            throw new FolderNotCreatedException("The folder cannot be create: " + response.getStatus());
+        }
         return null;
     }
 

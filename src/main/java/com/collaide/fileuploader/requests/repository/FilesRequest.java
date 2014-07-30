@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -25,13 +26,12 @@ import org.apache.logging.log4j.Logger;
  *
  * @author leo
  */
-public class FilesRequest extends RepositoryRequest{
+public class FilesRequest extends RepositoryRequest {
 
     private static final Logger logger = LogManager.getLogger(FilesRequest.class);
-    private List<SendFileThread> sendFileList = new ArrayList<SendFileThread>();
+    private List<SendFileThread> sendFileList;
     private CloseableHttpClient httpClient;
     private final int maxConnection;
-    private int countFileToSend;
 
     public FilesRequest(int groupID) {
         super(groupID);
@@ -44,13 +44,13 @@ public class FilesRequest extends RepositoryRequest{
     }
 
     /**
-     * send a file on the server TODO: develop multi-threading TODO test it
+     * send a file on the server
      *
      * @param file the file to send
      * @param id the id of the folder (on the server) to send the file. If the
      * id is equal to zero, the file is send to the root repository
      */
-    public void prepareForCreate(File file, int id) {
+    public void create(File file, int id) {
         HttpPost httppost = getHttpPostForCreate();
         FileBody bin = new FileBody(file);
         MultipartEntityBuilder reqEntity = MultipartEntityBuilder.create()
@@ -61,19 +61,24 @@ public class FilesRequest extends RepositoryRequest{
         }
         httppost.setEntity(reqEntity.build());
         httppost.setHeader("X-CSRF-Token", CurrentUser.getUser().getCsrf());
-        sendFileList.add(new SendFileThread(httppost, getHttpClient()));
-        if (countFileToSend >= getMaxConnection()) {
-            create();
+        SendFileThread sendFile = new SendFileThread(httppost, getHttpClient());
+        sendFile.start();
+        getSendFileList().add(sendFile);
+        if (getSendFileList().size() >= getMaxConnection()) {
+            terminate();
         }
-        countFileToSend++;
     }
 
     /**
-     * When required start uploading files to the server
+     * wait until that all create request are terminated and close the
+     * connection
+     *
+     * @return <code>true</code> if all threads are terminated and the pool
+     * ready for doing new erquests. <code>false</code> otherwise
      */
-    public void create() {
-        for (SendFileThread sendFileThread : sendFileList) {
-            sendFileThread.start();
+    public boolean terminate() {
+        if (sendFileList == null || sendFileList.isEmpty()) {
+            return false;
         }
         for (SendFileThread sendFileThread : sendFileList) {
             try {
@@ -82,22 +87,22 @@ public class FilesRequest extends RepositoryRequest{
                 logger.error("request for creatign a file interputpted " + ex);
             }
         }
+        logger.debug("All threads are terminated");
         try {
             httpClient.close();
+            httpClient = null;
+            sendFileList = null;
         } catch (IOException ex) {
             logger.error(ex);
         }
-        countFileToSend = 0;
-        httpClient = null;
-        sendFileList = null;
+        return true;
     }
-    
 
     public CloseableHttpClient getHttpClient() {
         if (httpClient == null) {
             PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
             cm.setMaxTotal(getMaxConnection());
-            return HttpClients.custom().setConnectionManager(cm).build();
+            httpClient = HttpClients.custom().setConnectionManager(cm).build();
         }
         return httpClient;
     }
@@ -111,5 +116,31 @@ public class FilesRequest extends RepositoryRequest{
 
     public int getMaxConnection() {
         return maxConnection;
+    }
+
+    private List<SendFileThread> getSendFileList() {
+        if (sendFileList == null) {
+            sendFileList = new ArrayList<SendFileThread>();
+        }
+        return sendFileList;
+    }
+
+    /**
+     * test if all request are terminated. Blocking method
+     *
+     * @return <code>false</code> is all threads are terminated
+     */
+    public boolean hasActiveConnections() {
+        if (sendFileList == null || sendFileList.isEmpty()) {
+            return httpClient == null;
+        }
+        for (SendFileThread sendFileThread : sendFileList) {
+            try {
+                sendFileThread.join();
+            } catch (InterruptedException ex) {
+                logger.error(ex);
+            }
+        }
+        return false;
     }
 }

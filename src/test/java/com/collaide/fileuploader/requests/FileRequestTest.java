@@ -11,7 +11,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.After;
+import org.junit.AfterClass;
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -20,40 +25,76 @@ import org.junit.Test;
  */
 public class FileRequestTest {
 
-    private int countSendFile = 0;
+    private static int countSendFile = 0;
+    private static FilesRequest f;
     private final static Logger logger = LogManager.getLogger(FileRequestTest.class);
 
     public FileRequestTest() {
     }
 
-    
-    @Test
-    public void sendFile() {
+    @BeforeClass
+    public static void beforeClass() {
         UsersRequest.signIn("admin@example.com", "password");
-        FilesRequest f = new FilesRequest(3);
         prepare();
-        sendAFile(f);
-        sendAFile(f);
-        f.create();
+    }
+
+    @Before
+    public void beforeTest() {
+        f = new FilesRequest(3);
+    }
+
+    @AfterClass
+    public static void afterClass() {
         clean();
+        countSendFile = 0;
+    }
+
+    @Test
+    public void sendTwoFiles() {
+        sendAFile(f);
+        sendAFile(f);
+        logger.debug("will call terminate() when all files are uploaded");
+        assertEquals(f.terminate(), true);
+        sendAFile(f);
+        assertEquals(f.terminate(), true);
+        logger.debug("terminate() called");
+    }
+
+    @Ignore
+    @Test
+    public void sendALotOfFilesWithDefaultParams() {
+        for (int i = 0; i < 20; i++) {
+            sendAFile(f);
+        }
+        assertEquals(f.hasActiveConnections(), false);
+    }
+
+    @Ignore("Think after that terminate() is called. Assert will be true")
+    @Test
+    public void sendALotOfFilesWithMAxConnections20() {
+        f = new FilesRequest(22, 3);
+        for (int i = 0; i < 20; i++) {
+            sendAFile(f);
+        }
+        assertEquals(f.hasActiveConnections(), false);
     }
 
     private void sendAFile(FilesRequest f) {
         try {
-            logger.debug("Sending the File: " + countSendFile);
+            logger.debug("Sending the file: " + countSendFile);
             countSendFile++;
             Files.copy(getTestFile().toPath(), getDestFile(countSendFile).toPath());
-            f.prepareForCreate(getDestFile(countSendFile), 0);
+            f.create(getDestFile(countSendFile), 0);
         } catch (IOException ex) {
             logger.error("Error while copying", ex);
         }
     }
 
-    private void prepare() {
+    private static void prepare() {
         new File(getTestCopyDir()).mkdir();
     }
 
-    private void clean() {
+    private static void clean() {
         File index = new File(getTestCopyDir());
         String[] entries = index.list();
         for (String s : entries) {
@@ -62,23 +103,23 @@ public class FileRequestTest {
         }
     }
 
-    private File getTestFile() {
+    private static File getTestFile() {
         return new File(getTestFilePath() + ".pdf");
     }
 
-    private File getDestFile(int count) {
+    private static File getDestFile(int count) {
         return new File(getTestCopyDir() + "/test" + String.valueOf(count) + ".pdf");
     }
 
-    private String getTestFilePath() {
+    private static String getTestFilePath() {
         return getTestFileDir() + "/test";
     }
 
-    private String getTestFileDir() {
+    private static String getTestFileDir() {
         return "/Users/leo/Desktop/test";
     }
 
-    private String getTestCopyDir() {
+    private static String getTestCopyDir() {
         return getTestFileDir() + "/pdf";
     }
 }

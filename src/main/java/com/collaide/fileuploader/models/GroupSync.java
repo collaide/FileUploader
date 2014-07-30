@@ -11,6 +11,7 @@ import com.collaide.fileuploader.models.repositorty.RepoFolder;
 import com.collaide.fileuploader.models.repositorty.RepoItems;
 import com.collaide.fileuploader.models.repositorty.Repository;
 import com.collaide.fileuploader.requests.repository.FilesRequest;
+import com.collaide.fileuploader.requests.repository.FolderNotCreatedException;
 import com.collaide.fileuploader.requests.repository.FolderRequest;
 import com.collaide.fileuploader.requests.repository.RepositoryRequest;
 import com.collaide.fileuploader.views.listeners.FileChangeListener;
@@ -69,6 +70,7 @@ public class GroupSync implements Serializable {
         filesRequest = new FilesRequest(group.getId());
         folderRequest = new FolderRequest(group.getId());
         synchronizeALL(path, repositoryRequest.index(), null);
+        filesRequest.terminate();
     }
 
     /**
@@ -94,6 +96,7 @@ public class GroupSync implements Serializable {
             // sync items present on local with the server
             for (File itemToSync : folderToSync.listFiles()) {
                 if (itemToSync.isDirectory()) { // is a directory
+                    try {
                     logger.debug(itemToSync.getName() + " is a dir. Synchronizing");
                     RepoFolder nextFolder;
                     if (serverFolders.containsKey(itemToSync.getName())) { // itemTo Sync existe sur le serveur
@@ -103,25 +106,30 @@ public class GroupSync implements Serializable {
                         nextFolder = folderRequest.create(itemToSync.getName());
                         logger.debug(itemToSync.getName() + "has been created. " + nextFolder.getId());
                     }
-                    serverFolders.remove(itemToSync.getName()); // le dossier existe en local. On l'enlève de la liste à synchronizer.
                     synchronizeALL(itemToSync.getPath(), repositoryRequest.get(nextFolder.getId()), nextFolder);
+                    } catch(FolderNotCreatedException ex) {
+                        logger.error("unable to create and sync the folder: " + 
+                                itemToSync.getAbsolutePath() + 
+                                " exception: " + ex);
+                    }
+                    serverFolders.remove(itemToSync.getName()); // le dossier existe en local. On l'enlève de la liste à synchronizer.
                 } else { // is a file
                     logger.debug(itemToSync.getName() + " is a file.");
                     FileInputStream fis = new FileInputStream(itemToSync);
                     String md5 = DigestUtils.md5Hex(fis);
                     if (!serverFiles.containsKey(md5)) { // le fichier local n'est pas sur le serveur
                         logger.debug(itemToSync.getName() + " is not on the server. " + md5);
-                        filesRequest.prepareForCreate(itemToSync, repoId); // le fichier local est mnt sur le serveur
+                        filesRequest.create(itemToSync, repoId); // le fichier local est mnt sur le serveur
                         logger.debug(itemToSync.getName() + " is created.");
                     } else {
                         if (!serverFiles.get(md5).getName().
                                 equals(itemToSync.getName())) { // le fichier local est présent sur le serveur avec le même md5 mais pas le même nom.
-                            filesRequest.prepareForCreate(itemToSync, repoId); // on synchronize
+                            filesRequest.create(itemToSync, repoId); // on synchronize
                         }
                         serverFiles.remove(md5); // le fichier existe en local. On l'enlève de la liste à synchronizer.
                     }
                     fis.close();
-                } //TODO create files
+                }
             }
             iterateThroughServerItems(serverFiles, directoryToSync); // sync files present on server but not on local
             iterateThroughServerItems(serverFolders, directoryToSync); // sync folders with content present on server but not on local
