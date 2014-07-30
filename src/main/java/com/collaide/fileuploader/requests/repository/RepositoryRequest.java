@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.collaide.fileuploader.requests;
+package com.collaide.fileuploader.requests.repository;
 
 import com.collaide.fileuploader.models.repositorty.RepoFile;
 import com.collaide.fileuploader.models.repositorty.RepoFolder;
 import com.collaide.fileuploader.models.repositorty.RepoItems;
 import com.collaide.fileuploader.models.repositorty.Repository;
+import com.collaide.fileuploader.requests.Collaide;
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.ClientResponse;
 import java.io.File;

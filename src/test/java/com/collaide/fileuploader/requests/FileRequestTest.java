@@ -5,6 +5,7 @@
  */
 package com.collaide.fileuploader.requests;
 
+import com.collaide.fileuploader.requests.repository.FilesRequest;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,6 +34,7 @@ public class FileRequestTest {
         prepare();
         sendAFile(f);
         sendAFile(f);
+        f.create();
         clean();
     }
 
@@ -41,7 +43,7 @@ public class FileRequestTest {
             logger.debug("Sending the File: " + countSendFile);
             countSendFile++;
             Files.copy(getTestFile().toPath(), getDestFile(countSendFile).toPath());
-            f.create(getDestFile(countSendFile), 0);
+            f.prepareForCreate(getDestFile(countSendFile), 0);
         } catch (IOException ex) {
             logger.error("Error while copying", ex);
         }

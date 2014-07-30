@@ -10,9 +10,9 @@ import com.collaide.fileuploader.models.repositorty.RepoFile;
 import com.collaide.fileuploader.models.repositorty.RepoFolder;
 import com.collaide.fileuploader.models.repositorty.RepoItems;
 import com.collaide.fileuploader.models.repositorty.Repository;
-import com.collaide.fileuploader.requests.FilesRequest;
-import com.collaide.fileuploader.requests.FolderRequest;
-import com.collaide.fileuploader.requests.RepositoryRequest;
+import com.collaide.fileuploader.requests.repository.FilesRequest;
+import com.collaide.fileuploader.requests.repository.FolderRequest;
+import com.collaide.fileuploader.requests.repository.RepositoryRequest;
 import com.collaide.fileuploader.views.listeners.FileChangeListener;
 import java.io.File;
 import java.io.FileInputStream;
@@ -111,17 +111,17 @@ public class GroupSync implements Serializable {
                     String md5 = DigestUtils.md5Hex(fis);
                     if (!serverFiles.containsKey(md5)) { // le fichier local n'est pas sur le serveur
                         logger.debug(itemToSync.getName() + " is not on the server. " + md5);
-                        filesRequest.create(itemToSync, repoId); // le fichier local est mnt sur le serveur
+                        filesRequest.prepareForCreate(itemToSync, repoId); // le fichier local est mnt sur le serveur
                         logger.debug(itemToSync.getName() + " is created.");
                     } else {
                         if (!serverFiles.get(md5).getName().
                                 equals(itemToSync.getName())) { // le fichier local est présent sur le serveur avec le même md5 mais pas le même nom.
-                            filesRequest.create(itemToSync, repoId); // on synchronize
+                            filesRequest.prepareForCreate(itemToSync, repoId); // on synchronize
                         }
                         serverFiles.remove(md5); // le fichier existe en local. On l'enlève de la liste à synchronizer.
                     }
                     fis.close();
-                }
+                } //TODO create files
             }
             iterateThroughServerItems(serverFiles, directoryToSync); // sync files present on server but not on local
             iterateThroughServerItems(serverFolders, directoryToSync); // sync folders with content present on server but not on local
