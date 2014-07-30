@@ -6,13 +6,14 @@
 
 package com.collaide.fileuploader.models.repositorty;
 
+import com.collaide.fileuploader.models.Model;
 import com.google.gson.annotations.Expose;
 
 /**
  *
  * @author leo
  */
-public class RepoItems {
+public class RepoItems extends Model{
   
     @Expose
     private String name;

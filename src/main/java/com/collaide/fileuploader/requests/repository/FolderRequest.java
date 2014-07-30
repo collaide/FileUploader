@@ -7,9 +7,12 @@ package com.collaide.fileuploader.requests.repository;
 
 import com.collaide.fileuploader.models.repositorty.RepoFolder;
 import com.collaide.fileuploader.models.user.CurrentUser;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.sun.jersey.api.client.ClientResponse;
 import javax.ws.rs.core.MediaType;
+import jdk.nashorn.internal.parser.JSONParser;
 
 /**
  *
@@ -38,7 +41,10 @@ public class FolderRequest extends RepositoryRequest {
         if (response.getStatus() != 204) {
             throw new FolderNotCreatedException("The folder cannot be create: " + response.getStatus());
         }
-        return null;
+        String json = response.getEntity(String.class);
+        Gson gson = new Gson();
+        //JsonElement jsonElement = new JsonParser().parse(json);
+        return RepoFolder.getJson(RepoFolder.class, response.getEntity(String.class));
     }
 
 }

@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.collaide.fileuploader.requests;
+package com.collaide.fileuploader.requests.repository;
 
+import com.collaide.fileuploader.requests.UsersRequest;
 import com.collaide.fileuploader.requests.repository.FilesRequest;
 import java.io.File;
 import java.io.IOException;
