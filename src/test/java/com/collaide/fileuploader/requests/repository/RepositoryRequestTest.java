@@ -8,14 +8,15 @@ package com.collaide.fileuploader.requests.repository;
 
 import com.collaide.fileuploader.helper.TestHelper;
 import com.collaide.fileuploader.models.repositorty.Repository;
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -23,8 +24,9 @@ import static org.junit.Assert.*;
  */
 public class RepositoryRequestTest extends TestHelper{
     
-    private final RepositoryRequest repositoryRequest = new RepositoryRequest(3);
-    private final FolderRequest folderRequest = new FolderRequest(3);
+    private final RepositoryRequest repositoryRequest = new RepositoryRequest(ADMIN_GROUP_ID);
+    private final FolderRequest folderRequest = new FolderRequest(ADMIN_GROUP_ID);
+    private final FilesRequest filesRequest = new FilesRequest(ADMIN_GROUP_ID);
     
     public RepositoryRequestTest() {
     }
@@ -52,12 +54,29 @@ public class RepositoryRequestTest extends TestHelper{
      */
     @Test
     public void testIndex() {
+        try {
+            File fileToSend = createNewFile();
+            filesRequest.create(fileToSend);
+            filesRequest.terminate();
+            String md5 = getMd5(fileToSend);
+            
+            String folderName = folderRequest.create().getName();
+            if(folderName == null) {
+                fail("name sould not be null");
+            }
+            Repository repo = repositoryRequest.index();
+            assertEquals(repo.getServerFiles().get(md5).getMd5(), md5);
+            assertEquals(repo.getServerFolders().get(folderName).getName(), folderName);
+            
 //        RepositoryRequest instance = null;
 //        Repository expResult = null;
 //        Repository result = instance.index();
 //        assertEquals(expResult, result);
 //        // TODO review the generated test code and remove the default call to fail.
 //        fail("The test case is a prototype.");
+        } catch (FolderNotCreatedException ex) {
+            fail("folder not created: " + ex);
+        }
     }
 
     /**

@@ -42,6 +42,12 @@ public class FilesRequest extends RepositoryRequest {
         super(groupID);
         this.maxConnection = maxConnextion;
     }
+    
+    public void create(File file) {
+        create(file, 0);
+    }
+
+
 
     /**
      * send a file on the server

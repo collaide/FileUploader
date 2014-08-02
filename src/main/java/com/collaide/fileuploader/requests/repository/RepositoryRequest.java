@@ -13,6 +13,7 @@ import com.collaide.fileuploader.models.repositorty.Repository;
 import com.collaide.fileuploader.models.user.CurrentUser;
 import com.collaide.fileuploader.requests.Collaide;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -53,7 +54,10 @@ public class RepositoryRequest extends Collaide {
      */
     public Repository index() {
         try {
-            return getRepository(getResponseToJsonObject(doGet(uri + "?" + CurrentUser.getAuthParams())));
+            JsonElement repoItems = getResponseToJsonElement(
+                            doGet(uri + "?" + CurrentUser.getAuthParams())
+                    ).getAsJsonObject().get("repo_items");
+            return getRepository(repoItems);
         } catch (NotSuccessRequest ex) {
             notSuccesLog("index", ex);
             return null;
@@ -70,7 +74,9 @@ public class RepositoryRequest extends Collaide {
     public Repository get(int id) {
         logger.debug("id=" + id);
         try {
-            JsonObject repoItems = getResponseToJsonObject(doGet(getRepoItemUrl(id) + "?" + CurrentUser.getAuthParams()));
+            JsonObject repoItems = getResponseToJsonElement(
+                    doGet(getRepoItemUrl(id) + "?" + CurrentUser.getAuthParams())
+            ).getAsJsonObject();
             if (repoItems.has("children") && repoItems.get("children").isJsonArray()) {
                 return getRepository(repoItems.get("children").getAsJsonArray());
             }
@@ -149,8 +155,8 @@ public class RepositoryRequest extends Collaide {
         return repo;
     }
 
-    private JsonObject getResponseToJsonObject(ClientResponse response) {
-        return new JsonParser().parse(response.getEntity(String.class)).getAsJsonObject();
+    private JsonElement getResponseToJsonElement(ClientResponse response) {
+        return new JsonParser().parse(response.getEntity(String.class));
     }
 
     private ClientResponse doGet(String url) throws NotSuccessRequest {
