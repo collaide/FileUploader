@@ -25,26 +25,41 @@ public class FolderRequest extends RepositoryRequest {
     }
 
     /**
-     * Create a folder on a repository TODO: finish implementation
+     * Create a folder on a repository
      * <br/>
-     * TODO: test it
      *
      * @param name the name of the folder to create
      * @return RepoFolder infos about the folder created.
-     * @throws com.collaide.fileuploader.requests.repository.FolderNotCreatedException
+     * @throws
+     * com.collaide.fileuploader.requests.repository.FolderNotCreatedException
      */
     public RepoFolder create(String name) throws FolderNotCreatedException {
-        ClientResponse response = request(getGroupUri() + "/folder?" + CurrentUser.getAuthParams()).
-                type(MediaType.APPLICATION_JSON).
-                accept(MediaType.APPLICATION_JSON).
-                post(ClientResponse.class);
-        if (response.getStatus() != 204) {
-            throw new FolderNotCreatedException("The folder cannot be create: " + response.getStatus());
-        }
-        String json = response.getEntity(String.class);
-        Gson gson = new Gson();
-        //JsonElement jsonElement = new JsonParser().parse(json);
-        return RepoFolder.getJson(RepoFolder.class, response.getEntity(String.class));
+        return create(name, 0);
+    }
+    
+    public RepoFolder create() throws FolderNotCreatedException {
+        return create(null, 0);
     }
 
+    /**
+     * create a folder on a repository, the specified id is the id of the parent
+     * folder
+     *
+     * @param name name of the folder
+     * @param id id of the parent folder
+     * @return the created folder
+     * @throws FolderNotCreatedException when the folder is not created
+     */
+    public RepoFolder create(String name, int id) throws FolderNotCreatedException {
+        RepoFolder folder = new RepoFolder();
+        folder.setName(name);
+        folder.setId(id);
+        ClientResponse response = request(getGroupUri() + "/folder?" + CurrentUser.getAuthParams()).
+                type(MediaType.APPLICATION_JSON).
+                post(ClientResponse.class, folder.toJson());
+        if (response.getStatus() != 201) {
+            throw new FolderNotCreatedException("The folder cannot be create: " + response.getStatus());
+        }
+        return RepoFolder.getJson(RepoFolder.class, response.getEntity(String.class));
+    }
 }

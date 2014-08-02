@@ -7,6 +7,10 @@
 package com.collaide.fileuploader.models.repositorty;
 
 import com.collaide.fileuploader.models.Model;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
 /**
@@ -16,15 +20,30 @@ import com.google.gson.annotations.Expose;
 public class RepoItems extends Model{
   
     @Expose
-    private String name;
+    private String name = null;
     @Expose
-    private String md5;
+    private String md5 = null;
     @Expose
     private int id;
-    @Expose
+    @Expose(serialize = false)
     private boolean is_folder;
     @Expose
-    private String download;
+    private String download = null;
+
+    public RepoItems() {
+        gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
+
+            @Override
+            public boolean shouldSkipField(FieldAttributes fa) {
+                return fa.getName().equals("id") && id == 0;
+            }
+
+            @Override
+            public boolean shouldSkipClass(Class<?> type) {
+                return false;
+            }
+        }).create();
+    }
 
     public String getName() {
         return name;
