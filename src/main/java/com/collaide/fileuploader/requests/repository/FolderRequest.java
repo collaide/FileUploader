@@ -9,16 +9,21 @@ import com.collaide.fileuploader.models.repositorty.RepoFolder;
 import com.collaide.fileuploader.models.user.CurrentUser;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.jersey.api.client.ClientResponse;
 import javax.ws.rs.core.MediaType;
 import jdk.nashorn.internal.parser.JSONParser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author leo
  */
 public class FolderRequest extends RepositoryRequest {
+    
+    private static final Logger logger = LogManager.getLogger(FolderRequest.class);
 
     public FolderRequest(int groupID) {
         super(groupID);
@@ -34,11 +39,11 @@ public class FolderRequest extends RepositoryRequest {
      * com.collaide.fileuploader.requests.repository.FolderNotCreatedException
      */
     public RepoFolder create(String name) throws FolderNotCreatedException {
-        return create(name, 0);
+        return create(name, -1);
     }
     
     public RepoFolder create() throws FolderNotCreatedException {
-        return create(null, 0);
+        return create(null, -1);
     }
 
     /**
@@ -60,6 +65,14 @@ public class FolderRequest extends RepositoryRequest {
         if (response.getStatus() != 201) {
             throw new FolderNotCreatedException("The folder cannot be create: " + response.getStatus());
         }
-        return RepoFolder.getJson(RepoFolder.class, response.getEntity(String.class));
+        String json = response.getEntity(String.class);
+//        JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
+//        logger.debug("json string: " + json);
+//        logger.debug("object: " + jsonObject.toString());
+//        logger.debug("has id: " + jsonObject.has("id"));
+        // TODO: essayer de comprendre... -> stackoverflow
+        new Gson().fromJson(json, RepoFolder.class);
+        //logger.debug("id: " + f.getId());
+        return RepoFolder.getJson(RepoFolder.class, json);
     }
 }

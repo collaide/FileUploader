@@ -24,8 +24,8 @@ public class RepoItems extends Model{
     @Expose
     private String md5 = null;
     @Expose
-    private int id;
-    @Expose(serialize = false)
+    private int id = 0;
+    @Expose(serialize = false, deserialize = false)
     private boolean is_folder;
     @Expose
     private String download = null;
@@ -35,7 +35,7 @@ public class RepoItems extends Model{
 
             @Override
             public boolean shouldSkipField(FieldAttributes fa) {
-                return fa.getName().equals("id") && id == 0;
+                return fa.getName().equals("id") && id == -1;
             }
 
             @Override

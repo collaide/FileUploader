@@ -5,12 +5,17 @@
  */
 package com.collaide.fileuploader.requests.repository;
 
+import com.collaide.fileuploader.requests.NotSuccessRequest;
 import com.collaide.fileuploader.models.repositorty.RepoFile;
 import com.collaide.fileuploader.models.repositorty.RepoFolder;
 import com.collaide.fileuploader.models.repositorty.RepoItems;
 import com.collaide.fileuploader.models.repositorty.Repository;
+import com.collaide.fileuploader.models.user.CurrentUser;
 import com.collaide.fileuploader.requests.Collaide;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.jersey.api.client.ClientResponse;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +39,7 @@ public class RepositoryRequest extends Collaide {
     private int groupID;
     protected final String uri;
     private static final Logger logger = LogManager.getLogger(RepositoryRequest.class);
+    private static final Gson gson = new Gson();
 
     public RepositoryRequest(int groupID) {
         this.groupID = groupID;
@@ -41,37 +47,47 @@ public class RepositoryRequest extends Collaide {
     }
 
     /**
-     * get the root of a repository
-     * TODO: test it
+     * get the root of a repository TODO: test it
+     *
      * @return Repository a set of folders and files present on the server
      */
     public Repository index() {
-        ClientResponse response = request(uri)
-                .accept(MediaType.APPLICATION_JSON)
-                .get(ClientResponse.class);
-        return getOrIndex(response);
+        try {
+            return getRepository(getResponseToJsonObject(doGet(uri + "?" + CurrentUser.getAuthParams())));
+        } catch (NotSuccessRequest ex) {
+            notSuccesLog("index", ex);
+            return null;
+        }
     }
 
     /**
-     * get infos about a elements of a repository represented by an id
-     * TODO: test it
+     * get infos about a elements of a repository represented by an id TODO:
+     * test it
+     *
      * @param id the id of the elements
      * @return Repository a set of folders and files present on the server
      */
     public Repository get(int id) {
-        ClientResponse response = request(getRepoItemUrl(id))
-                .accept(MediaType.APPLICATION_JSON)
-                .get(ClientResponse.class);
-        return getOrIndex(response);
+        logger.debug("id=" + id);
+        try {
+            JsonObject repoItems = getResponseToJsonObject(doGet(getRepoItemUrl(id) + "?" + CurrentUser.getAuthParams()));
+            if (repoItems.has("children") && repoItems.get("children").isJsonArray()) {
+                return getRepository(repoItems.get("children").getAsJsonArray());
+            }
+        } catch (NotSuccessRequest ex) {
+            notSuccesLog("get/" + String.valueOf(id), ex);
+            return null;
+        }
+        return null;
     }
 
     /**
-     * download a file or a folder from the server to the disk
-     * a folder is downloaded as a zip and the unzipped
-     * TODO: test it
+     * download a file or a folder from the server to the disk a folder is
+     * downloaded as a zip and the unzipped TODO: test it
+     *
      * @param url the URL of the repo item to download
      * @param folderToSave the folderin which to save the downloaded item
-     * @throws IOException 
+     * @throws IOException
      */
     public void download(String url, String folderToSave) throws IOException {
         ClientResponse response = request(url)
@@ -92,7 +108,7 @@ public class RepositoryRequest extends Collaide {
     }
 
     protected String getRepoItemUrl(int id) {
-        return uri + "/" + String.valueOf(id);
+        return uri + String.valueOf(id);
     }
 
     public int getGroupID() {
@@ -106,31 +122,49 @@ public class RepositoryRequest extends Collaide {
     public String getGroupUri() {
         return uri;
     }
-    
-    
 
     /**
      * Get a list of items(files or folders) from the server
-     * TODO: implement the case when not at the root of the repository
+     *
      * @param response The Request to execute
-     * @return a class <code>Repository</code> containing a list of files and a list of folders
+     * @return a class <code>Repository</code> containing a list of files and a
+     * list of folders
      */
-    private Repository getOrIndex(ClientResponse response) {
-        if (response.getStatus() != 200) {
-            return null;
-        }
-        String json = response.getEntity(String.class);
-        Gson gson = new Gson();
-        RepoItems[] items = gson.fromJson(json, RepoItems[].class);
+    private Repository getRepository(JsonElement json) {
         Repository repo = new Repository();
-        for (RepoItems item : items) {
-            if (item.isIs_folder()) {
-                repo.getServerFolders().put(item.getName(), (RepoFolder) item);
+        for(JsonElement jsonElement : json.getAsJsonArray()) {
+            JsonObject repoItem = jsonElement.getAsJsonObject();
+            if(repoItem.get("is_folder").getAsBoolean()) {
+                repo.getServerFolders().put(
+                        repoItem.get("name").getAsString(),
+                        gson.fromJson(repoItem, RepoFolder.class)
+                );
             } else {
-                repo.getServerFiles().put(item.getMd5(), (RepoFile) item);
+                repo.getServerFiles().put(
+                        repoItem.get("md5").getAsString(),
+                        gson.fromJson(repoItem, RepoFile.class)
+                );
             }
         }
         return repo;
+    }
+
+    private JsonObject getResponseToJsonObject(ClientResponse response) {
+        return new JsonParser().parse(response.getEntity(String.class)).getAsJsonObject();
+    }
+
+    private ClientResponse doGet(String url) throws NotSuccessRequest {
+        ClientResponse response = request(url)
+                .accept(MediaType.APPLICATION_JSON)
+                .get(ClientResponse.class);
+        if (response.getStatus() != 200) {
+            throw new NotSuccessRequest("the response status is not equal to 200: " + String.valueOf(response.getStatus()));
+        }
+        return response;
+    }
+
+    private void notSuccesLog(String action, Exception ex) {
+        logger.error("error while fetching repo_items#" + action + ": " + ex);
     }
 
     private boolean isAZip(File file) {
