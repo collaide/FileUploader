@@ -66,13 +66,8 @@ public class FolderRequest extends RepositoryRequest {
             throw new FolderNotCreatedException("The folder cannot be create: " + response.getStatus());
         }
         String json = response.getEntity(String.class);
-//        JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
-//        logger.debug("json string: " + json);
-//        logger.debug("object: " + jsonObject.toString());
-//        logger.debug("has id: " + jsonObject.has("id"));
         // TODO: essayer de comprendre... -> stackoverflow
         new Gson().fromJson(json, RepoFolder.class);
-        //logger.debug("id: " + f.getId());
         return RepoFolder.getJson(RepoFolder.class, json);
     }
 }
