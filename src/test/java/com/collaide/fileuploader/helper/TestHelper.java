@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.security.SecureRandom;
@@ -84,6 +85,13 @@ public class TestHelper extends CustomAssert {
         return null;
     }
 
+    protected Method invokePrivateMethod(Class targetClass, String methodName, Class... argClasses) throws NoSuchMethodException {
+        Method method = targetClass.getDeclaredMethod(methodName, argClasses);
+        method.setAccessible(true);
+        return method;
+
+    }
+
     private static void clean() {
         File index = new File(getTestCopyDir());
         String[] entries = index.list();
@@ -100,7 +108,7 @@ public class TestHelper extends CustomAssert {
     protected static String getTestFileDir() {
         return "/Users/leo/Desktop/test";
     }
-    
+
     protected static String getTestDownloadDir() {
         return getTestFileDir() + "/download";
     }

@@ -7,10 +7,17 @@ package com.collaide.fileuploader.requests.repository;
 
 import com.collaide.fileuploader.helper.TestHelper;
 import com.collaide.fileuploader.models.repositorty.RepoFile;
+import com.collaide.fileuploader.models.repositorty.RepoFolder;
 import com.collaide.fileuploader.models.repositorty.Repository;
+import com.collaide.fileuploader.models.user.CurrentUser;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ws.rs.core.MediaType;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
@@ -64,12 +71,13 @@ public class RepositoryRequestTest extends TestHelper {
             fail("name sould not be null");
         }
         Repository repo = repositoryRequest.index();
-        assertEquals(repo.getServerFiles().get(md5).getMd5(), md5);
+        assertEquals(repo.getServerFiles().get(md5 + fileToSend.getName()).getMd5(), md5);
         assertEquals(repo.getServerFolders().get(folderName).getName(), folderName);
     }
 
     /**
      * Test of get method, of class RepositoryRequest.
+     *
      * @throws java.lang.Exception
      */
     @Test
@@ -88,25 +96,73 @@ public class RepositoryRequestTest extends TestHelper {
 
     /**
      * Test of download method, of class RepositoryRequest.
+     *
      * @throws java.lang.Exception
      */
     @Test
     public void testDownloadAFile() throws Exception {
-        String fileName = getRandomString();
-        File fileToSend = createNewFile(fileName);
+        File fileToSend = createNewFile();
         filesRequest.create(fileToSend);
         filesRequest.terminate();
-        RepoFile fileServer = repositoryRequest.
-                index().
-                getServerFiles().
-                get(getMd5(fileToSend));
-        if(fileServer == null) {
+        RepoFile fileServer = getFile(fileToSend);
+        if (fileServer == null) {
             fail("the created file is not found on the server");
         }
         String downloaded = repositoryRequest.download(fileServer.getDownload(), getTestDownloadDir());
         assertNotNull(downloaded);
         File fileDownloaded = new File(downloaded);
         assertTrue(fileDownloaded.exists());
-        assertEquals(fileName+".pdf", fileDownloaded.getName());
+        assertEquals(fileToSend.getName(), fileDownloaded.getName());
+    }
+    
+    @Test
+    public void testDownloadAFolder() throws Exception {
+        String folderName = getRandomString();
+        String subFolderName = getRandomString();
+        File firstFile = createNewFile();
+        File secondFile = createNewFile();
+        RepoFolder mainFolder = folderRequest.create(folderName);
+        int folderId = mainFolder.getId();
+        int subFolderId = folderRequest.create(subFolderName, folderId).getId();
+        filesRequest.create(firstFile, folderId);
+        filesRequest.create(secondFile, subFolderId);
+        filesRequest.terminate();
+        String download = repositoryRequest.download(
+                mainFolder.getDownload(), getTestDownloadDir()
+        );
+        assertNotNull(download);
+        File downloadedFile = new File(download);
+        assertDirectoryExist(downloadedFile);
+        File subDir = new File(downloadedFile, subFolderName);
+        assertDirectoryExist(subDir);
+    }
+
+    @Test
+    public void testGetFileName() throws Exception {
+        File fileToSend = createNewFile();
+        filesRequest.create(fileToSend);
+        filesRequest.terminate();
+        ClientResponse response = Client.create()
+                .resource(
+                        getFile(fileToSend).getDownload() + "?" + CurrentUser.getAuthParams()
+                ).accept(MediaType.APPLICATION_JSON)
+                .get(ClientResponse.class);
+        Method getFileName = invokePrivateMethod(
+                repositoryRequest.getClass(), "getFileName", ClientResponse.class
+        );
+        try {
+            String expectedName = (String) getFileName.invoke(repositoryRequest, response);
+            assertEquals(fileToSend.getName(), expectedName);
+        } catch (InvocationTargetException ex) {
+            logger.error("error while invoking getFileName: " + ex.getCause());
+            fail("invocation error");
+        }
+    }
+
+    private RepoFile getFile(File f) {
+        return repositoryRequest.
+                index().
+                getServerFiles().
+                get(getMd5(f) + f.getName());
     }
 }

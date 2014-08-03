@@ -13,23 +13,19 @@ import com.collaide.fileuploader.models.user.CurrentUser;
 import com.collaide.fileuploader.requests.Collaide;
 import com.collaide.fileuploader.requests.NotSuccessRequest;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
+import java.util.logging.Level;
 import javax.ws.rs.core.MediaType;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,8 +53,8 @@ public class RepositoryRequest extends Collaide {
     public Repository index() {
         try {
             JsonElement repoItems = getResponseToJsonElement(
-                            doGet(uri + "?" + CurrentUser.getAuthParams())
-                    ).getAsJsonObject().get("repo_items");
+                    doGet(uri + "?" + CurrentUser.getAuthParams())
+            ).getAsJsonObject().get("repo_items");
             return getRepository(repoItems);
         } catch (NotSuccessRequest ex) {
             notSuccesLog("index", ex);
@@ -67,8 +63,8 @@ public class RepositoryRequest extends Collaide {
     }
 
     /**
-     * get infos about a elements of a repository represented by an id 
-     * 
+     * get infos about a elements of a repository represented by an id
+     *
      * @param id the id of the elements
      * @return Repository a set of folders and files present on the server
      */
@@ -79,7 +75,7 @@ public class RepositoryRequest extends Collaide {
                     doGet(getRepoItemUrl(id) + "?" + CurrentUser.getAuthParams())
             ).getAsJsonObject();
             if (repoItems.has("children") && repoItems.get("children").isJsonArray()) {
-                repo =  getRepository(repoItems.get("children").getAsJsonArray());
+                repo = getRepository(repoItems.get("children").getAsJsonArray());
                 repo.setRepoItem(gson.fromJson(repoItems, RepoItems.class));
             }
         } catch (NotSuccessRequest ex) {
@@ -104,21 +100,20 @@ public class RepositoryRequest extends Collaide {
         if (response.getStatus() != 200) {
             return null;
         }
-        String saveFilePath = null;
         File downloadedFile = response.getEntity(File.class);
-        File fileToSave = new File(folderToSave, downloadedFile.getName());
-        logger.debug("File downloaded: " + downloadedFile.getName());
-        logger.debug(Files.probeContentType(downloadedFile.toPath()));
+
+        File fileToSave = new File(folderToSave, getFileName(response));
         downloadedFile.renameTo(fileToSave);
         FileWriter fr = new FileWriter(downloadedFile);
-        saveFilePath = downloadedFile.getAbsolutePath();
         fr.flush();
-        if (isAZip(downloadedFile)) {
-            unzip(downloadedFile, new File(folderToSave));
+        String itemName = fileToSave.getAbsolutePath();
+        if (isAZip(response)) {
+            unzip(fileToSave, new File(folderToSave));
             downloadedFile.delete();
+            itemName = FilenameUtils.removeExtension(itemName);
         }
         downloadedFile.getAbsolutePath();
-        return saveFilePath;
+        return itemName;
     }
 
     protected String getRepoItemUrl(int id) {
@@ -146,16 +141,16 @@ public class RepositoryRequest extends Collaide {
      */
     private Repository getRepository(JsonElement json) {
         Repository repo = new Repository();
-        for(JsonElement jsonElement : json.getAsJsonArray()) {
+        for (JsonElement jsonElement : json.getAsJsonArray()) {
             JsonObject repoItem = jsonElement.getAsJsonObject();
-            if(repoItem.get("is_folder").getAsBoolean()) {
+            if (repoItem.get("is_folder").getAsBoolean()) {
                 repo.getServerFolders().put(
                         repoItem.get("name").getAsString(),
                         gson.fromJson(repoItem, RepoFolder.class)
                 );
             } else {
                 repo.getServerFiles().put(
-                        repoItem.get("md5").getAsString(),
+                        repoItem.get("md5").getAsString() + repoItem.get("name").getAsString(),
                         gson.fromJson(repoItem, RepoFile.class)
                 );
             }
@@ -165,6 +160,19 @@ public class RepositoryRequest extends Collaide {
 
     private JsonElement getResponseToJsonElement(ClientResponse response) {
         return new JsonParser().parse(response.getEntity(String.class));
+    }
+
+    private String getFileName(ClientResponse response) {
+        String contentDisposition = response.getHeaders().get("Content-disposition").get(0);
+        if (contentDisposition == null) {
+            return "unknow";
+        }
+        String fileName = contentDisposition.replaceFirst("^inline; filename=\"", "");
+        fileName = fileName.substring(0, fileName.length() - 1);
+        if (isAZip(response)) {
+            fileName = fileName + ".zip";
+        }
+        return fileName;
     }
 
     private ClientResponse doGet(String url) throws NotSuccessRequest {
@@ -181,62 +189,35 @@ public class RepositoryRequest extends Collaide {
         logger.error("error while fetching repo_items#" + action + ": " + ex);
     }
 
-    private boolean isAZip(File file) {
-        ZipFile zipfile = null;
-        try {
-            zipfile = new ZipFile(file);
-            return true;
-        } catch (ZipException e) {
-            return false;
-        } catch (IOException e) {
-            return false;
-        } finally {
-            try {
-                if (zipfile != null) {
-                    zipfile.close();
-                    zipfile = null;
-                }
-            } catch (IOException e) {
-            }
-        }
+    private boolean isAZip(ClientResponse response) {
+        String contentType = response.getHeaders().get("Content-Type").get(0);
+        return contentType.equals("application/zip");
     }
 
-    private void unzip(File zip, File output) {
-        byte[] buffer = new byte[1024];
+    private void unzip(File source, File destination) {
+//        try {
+        String finalDestionation = new File(
+                destination, FilenameUtils.removeExtension(source.getName())
+        ).getAbsolutePath();
+        logger.debug("source: " + source.getAbsolutePath());
+        logger.debug("destination: " + finalDestionation);
         try {
-            //create output directory is not exists
-            if (!output.exists()) {
-                output.mkdir();
-            }
-            //get the zip file content
-            ZipInputStream zis = new ZipInputStream(new FileInputStream(zip));
-            //get the zipped file list entry
-            ZipEntry ze = zis.getNextEntry();
-
-            while (ze != null) {
-                String fileName = ze.getName();
-                File newFile = new File(output + File.separator + fileName);
-
-                logger.debug("file unzip : " + newFile.getAbsoluteFile());
-
-                //create all non exists folders
-                //else you will hit FileNotFoundException for compressed folder
-                new File(newFile.getParent()).mkdirs();
-
-                FileOutputStream fos = new FileOutputStream(newFile);
-                int len;
-                while ((len = zis.read(buffer)) > 0) {
-                    fos.write(buffer, 0, len);
-                }
-                fos.close();
-                ze = zis.getNextEntry();
-            }
-            zis.closeEntry();
-            zis.close();
-
-        } catch (IOException ex) {
-            logger.error(ex);
+            ZipFile zipFile = new ZipFile(source);
+            zipFile.extractAll(finalDestionation);
+        } catch (ZipException ex) {
+            logger.error("error while unzipping: " + ex);
         }
+//            destination.mkdirs();
+//            FileSystemManager fileManager = VFS.getManager();
+//            FileObject fileObject = fileManager.resolveFile(source.getAbsolutePath());
+//            FileObject zipFile = fileManager.createFileSystem(fileObject);
+//            fileManager.toFileObject(destination).copyFrom(zipFile, new AllFileSelector());
+//            zipFile.close();
+//            fileObject.close();
+//
+//        } catch (FileSystemException ex) {
+//            logger.error("error while unzipping: " + ex);
+//        }
     }
 
 }

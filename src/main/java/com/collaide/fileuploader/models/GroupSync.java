@@ -117,16 +117,16 @@ public class GroupSync implements Serializable {
                     logger.debug(itemToSync.getName() + " is a file.");
                     FileInputStream fis = new FileInputStream(itemToSync);
                     String md5 = DigestUtils.md5Hex(fis);
-                    if (!serverFiles.containsKey(md5)) { // le fichier local n'est pas sur le serveur
+                    if (!serverFiles.containsKey(md5 + itemToSync.getName())) { // le fichier local n'est pas sur le serveur
                         logger.debug(itemToSync.getName() + " is not on the server. " + md5);
                         filesRequest.create(itemToSync, repoId); // le fichier local est mnt sur le serveur
                         logger.debug(itemToSync.getName() + " is created.");
                     } else {
-                        if (!serverFiles.get(md5).getName().
+                        if (!serverFiles.get(md5 + itemToSync.getName()).getName().
                                 equals(itemToSync.getName())) { // le fichier local est présent sur le serveur avec le même md5 mais pas le même nom.
                             filesRequest.create(itemToSync, repoId); // on synchronize
                         }
-                        serverFiles.remove(md5); // le fichier existe en local. On l'enlève de la liste à synchronizer.
+                        serverFiles.remove(md5 + itemToSync.getName()); // le fichier existe en local. On l'enlève de la liste à synchronizer.
                     }
                     fis.close();
                 }
