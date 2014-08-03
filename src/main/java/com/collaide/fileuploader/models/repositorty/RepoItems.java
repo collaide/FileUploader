@@ -9,7 +9,6 @@ package com.collaide.fileuploader.models.repositorty;
 import com.collaide.fileuploader.models.Model;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 

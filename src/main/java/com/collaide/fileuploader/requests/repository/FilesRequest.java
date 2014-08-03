@@ -5,6 +5,7 @@
  */
 package com.collaide.fileuploader.requests.repository;
 
+import com.collaide.fileuploader.models.repositorty.RepoFile;
 import com.collaide.fileuploader.models.user.CurrentUser;
 import java.io.File;
 
@@ -46,8 +47,6 @@ public class FilesRequest extends RepositoryRequest {
     public void create(File file) {
         create(file, 0);
     }
-
-
 
     /**
      * send a file on the server

@@ -5,24 +5,26 @@
  */
 package com.collaide.fileuploader.requests.repository;
 
-import com.collaide.fileuploader.requests.NotSuccessRequest;
 import com.collaide.fileuploader.models.repositorty.RepoFile;
 import com.collaide.fileuploader.models.repositorty.RepoFolder;
 import com.collaide.fileuploader.models.repositorty.RepoItems;
 import com.collaide.fileuploader.models.repositorty.Repository;
 import com.collaide.fileuploader.models.user.CurrentUser;
 import com.collaide.fileuploader.requests.Collaide;
+import com.collaide.fileuploader.requests.NotSuccessRequest;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -48,7 +50,7 @@ public class RepositoryRequest extends Collaide {
     }
 
     /**
-     * get the root of a repository TODO: test it
+     * get the root of a repository
      *
      * @return Repository a set of folders and files present on the server
      */
@@ -65,26 +67,25 @@ public class RepositoryRequest extends Collaide {
     }
 
     /**
-     * get infos about a elements of a repository represented by an id TODO:
-     * test it
-     *
+     * get infos about a elements of a repository represented by an id 
+     * 
      * @param id the id of the elements
      * @return Repository a set of folders and files present on the server
      */
     public Repository get(int id) {
-        logger.debug("id=" + id);
+        Repository repo = null;
         try {
             JsonObject repoItems = getResponseToJsonElement(
                     doGet(getRepoItemUrl(id) + "?" + CurrentUser.getAuthParams())
             ).getAsJsonObject();
             if (repoItems.has("children") && repoItems.get("children").isJsonArray()) {
-                return getRepository(repoItems.get("children").getAsJsonArray());
+                repo =  getRepository(repoItems.get("children").getAsJsonArray());
+                repo.setRepoItem(gson.fromJson(repoItems, RepoItems.class));
             }
         } catch (NotSuccessRequest ex) {
             notSuccesLog("get/" + String.valueOf(id), ex);
-            return null;
         }
-        return null;
+        return repo;
     }
 
     /**
@@ -93,24 +94,31 @@ public class RepositoryRequest extends Collaide {
      *
      * @param url the URL of the repo item to download
      * @param folderToSave the folderin which to save the downloaded item
+     * @return The String path of the saved file or folder
      * @throws IOException
      */
-    public void download(String url, String folderToSave) throws IOException {
-        ClientResponse response = request(url)
+    public String download(String url, String folderToSave) throws IOException {
+        ClientResponse response = Client.create().resource(url + "?" + CurrentUser.getAuthParams())
                 .accept(MediaType.APPLICATION_JSON)
                 .get(ClientResponse.class);
         if (response.getStatus() != 200) {
-            return;
+            return null;
         }
+        String saveFilePath = null;
         File downloadedFile = response.getEntity(File.class);
         File fileToSave = new File(folderToSave, downloadedFile.getName());
+        logger.debug("File downloaded: " + downloadedFile.getName());
+        logger.debug(Files.probeContentType(downloadedFile.toPath()));
         downloadedFile.renameTo(fileToSave);
         FileWriter fr = new FileWriter(downloadedFile);
+        saveFilePath = downloadedFile.getAbsolutePath();
         fr.flush();
         if (isAZip(downloadedFile)) {
             unzip(downloadedFile, new File(folderToSave));
             downloadedFile.delete();
         }
+        downloadedFile.getAbsolutePath();
+        return saveFilePath;
     }
 
     protected String getRepoItemUrl(int id) {

@@ -97,8 +97,12 @@ public class TestHelper extends CustomAssert {
         return getTestFileDir() + "/test";
     }
 
-    private static String getTestFileDir() {
+    protected static String getTestFileDir() {
         return "/Users/leo/Desktop/test";
+    }
+    
+    protected static String getTestDownloadDir() {
+        return getTestFileDir() + "/download";
     }
 
     private static String getTestCopyDir() {

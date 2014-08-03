@@ -16,6 +16,15 @@ public class Repository {
 
     private Map<String, RepoFile> serverFiles = new HashMap<String, RepoFile>();
     private Map<String, RepoFolder> serverFolders = new HashMap<String, RepoFolder>();
+    private RepoItems repoItem;
+
+    public RepoItems getRepoItem() {
+        return repoItem;
+    }
+
+    public void setRepoItem(RepoItems repoItem) {
+        this.repoItem = repoItem;
+    }
 
     public Map<String, RepoFile> getServerFiles() {
         return serverFiles;
