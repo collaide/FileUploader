@@ -82,6 +82,8 @@ public class FilesRequest extends RepositoryRequest {
      * ready for doing new erquests. <code>false</code> otherwise
      */
     public boolean terminate() {
+        logger.debug("terminate called. max connection = " + getMaxConnection() 
+                + " and file to send: " + getSendFileList().size());
         if (sendFileList == null || sendFileList.isEmpty()) {
             return false;
         }

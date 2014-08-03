@@ -75,7 +75,8 @@ public class GroupSync implements Serializable {
 
     /**
      * Recursive function for synchronizing all elements and sub-elements of a
-     * directory
+     * directory<br/>
+     * TODO: do not sync .ds_store os x files maybe all .dotfiles?
      *
      * @param directoryToSync The directory to sync
      * @param serverRepo Files and folders present on the server for the
@@ -103,8 +104,12 @@ public class GroupSync implements Serializable {
                         logger.debug(itemToSync.getName() + " exist on the server");
                         nextFolder = serverFolders.get(itemToSync.getName());
                     } else {// itemToSync n'existe pas sur le serveur
-                        nextFolder = folderRequest.create(itemToSync.getName());
-                        logger.debug(itemToSync.getName() + "has been created. " + nextFolder.getId());
+                        nextFolder = (repoId == 0 ?
+                                folderRequest.create(itemToSync.getName()) :
+                                folderRequest.create(itemToSync.getName(), repoId)
+                                );
+                        logger.debug("the id of the folder syncing is: " + repoId);
+                        logger.debug(itemToSync.getName() + " has been created. " + nextFolder.getId());
                     }
                     synchronizeALL(itemToSync.getPath(), repositoryRequest.get(nextFolder.getId()), nextFolder);
                     } catch(FolderNotCreatedException ex) {

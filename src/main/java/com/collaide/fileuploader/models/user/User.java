@@ -30,7 +30,7 @@ public class User extends Model {
     private String token;
     @Expose
     private String csrf;
-    private GroupSyncList groupSyncList;
+    private GroupSyncList groupSyncList = new GroupSyncList();
     private File dataPath;
     private File userDataPath;
     private static final Logger logger = LogManager.getLogger(User.class);

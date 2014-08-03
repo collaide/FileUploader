@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
  * @author leo
  */
 public class GroupPanel extends javax.swing.JPanel {
+
     private static final Logger logger = LogManager.getLogger(GroupPanel.class);
 
     /**
@@ -52,7 +53,7 @@ public class GroupPanel extends javax.swing.JPanel {
                         if (gs != null) {
                             path = gs.getPath();
                         }
-                        if(gs == null) {
+                        if (gs == null) {
                             gs = new GroupSync();
                             gs.setGroup(groupClicked);
                         }
@@ -68,8 +69,13 @@ public class GroupPanel extends javax.swing.JPanel {
                                 gs.setPath(selectedpath);
                                 gs.synchronize();
                                 gs.stopObserving();
-                                gs.startObserving();
-                                CurrentUser.getUser().getGroupSyncList().addGroupSync(gs);
+                                //gs.startObserving();
+                                if (CurrentUser.getUser().getGroupSyncList() != null) {
+                                    logger.debug("getGroupSyncList not null");
+                                    CurrentUser.getUser().getGroupSyncList().addGroupSync(gs);
+                                } else {
+                                    logger.debug("getGroupSyncList null");
+                                }
                                 panel.setSynchronizedMessage();
                                 logger.debug("Synchronized " + gs.getPath());
                             }
