@@ -69,7 +69,7 @@ public class GroupPanel extends javax.swing.JPanel {
                                 gs.setPath(selectedpath);
                                 gs.synchronize();
                                 gs.stopObserving();
-                                //gs.startObserving();
+                                gs.startObserving();
                                 if (CurrentUser.getUser().getGroupSyncList() != null) {
                                     logger.debug("getGroupSyncList not null");
                                     CurrentUser.getUser().getGroupSyncList().addGroupSync(gs);

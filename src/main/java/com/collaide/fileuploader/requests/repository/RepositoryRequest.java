@@ -87,7 +87,6 @@ public class RepositoryRequest extends Collaide {
     /**
      * download a file or a folder from the server to the disk a folder is
      * downloaded as a zip and the unzipped<br/>
-     * TDOD: delete the downloaded .zip
      *
      * @param url the URL of the repo item to download
      * @param folderToSave the folderin which to save the downloaded item

@@ -65,6 +65,9 @@ public class FilesSynchronization extends Thread {
      * Register the given directory with the WatchService
      */
     private void register(Path dir) throws IOException {
+        if(dir.startsWith(".")) {
+            return;
+        }
         WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
         keys.put(key, dir);
         logger.debug("registering " + dir.getFileName());
@@ -118,7 +121,6 @@ public class FilesSynchronization extends Thread {
                 Path child = dir.resolve(name);
 
                 // print out event
-                logger.debug("event.kind().name(): " + child);
                 for (FileChangeListener listener : getFileChangeListeners()) {
                     listener.fileChanged(event.kind(), child);
                     if (kind == ENTRY_CREATE) {

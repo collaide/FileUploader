@@ -15,6 +15,7 @@ import com.collaide.fileuploader.requests.repository.FolderNotCreatedException;
 import com.collaide.fileuploader.requests.repository.FolderRequest;
 import com.collaide.fileuploader.requests.repository.RepositoryRequest;
 import com.collaide.fileuploader.views.listeners.FileChangeListener;
+import com.collaide.fileuploader.views.listeners.FileMonitorAdapter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -40,6 +41,7 @@ public class GroupSync implements Serializable {
     private transient RepositoryRequest repositoryRequest;
     private transient FilesRequest filesRequest;
     private transient FolderRequest folderRequest;
+    private transient boolean isSyncronizing = false;
 
     public Group getGroup() {
         return group;
@@ -66,11 +68,13 @@ public class GroupSync implements Serializable {
      * <code>path</code>
      */
     public void synchronize() {
+        isSyncronizing = true;
         repositoryRequest = new RepositoryRequest(group.getId());
         filesRequest = new FilesRequest(group.getId());
         folderRequest = new FolderRequest(group.getId());
         synchronizeALL(path, repositoryRequest.index(), null);
         filesRequest.terminate();
+        isSyncronizing = false;
     }
 
     /**
@@ -96,6 +100,9 @@ public class GroupSync implements Serializable {
             }
             // sync items present on local with the server
             for (File itemToSync : folderToSync.listFiles()) {
+                if(itemToSync.getName().startsWith(".")) {
+                    continue;
+                }
                 if (itemToSync.isDirectory()) { // is a directory
                     try {
                     logger.debug(itemToSync.getName() + " is a dir. Synchronizing");
@@ -171,24 +178,22 @@ public class GroupSync implements Serializable {
     }
 
     private void addListeners(FilesSynchronization sync) {
-        sync.addFileChangeListener(new FileChangeListener() {
+        sync.addFileChangeListener(new FileMonitorAdapter(this) {
 
             @Override
-            public void fileCreated(Path child) {
-                logger.debug("File created");
-            }
-
-            @Override
-            public void fileModified(Path child) {
-            }
-
-            @Override
-            public void fileDeleted(Path child) {
-            }
-
-            @Override
-            public void fileChanged(WatchEvent.Kind<?> kind, Path child) {
+            public void onChange(Path child) {
+                logger.debug(child.toFile().getAbsoluteFile() + " is changed. Synchronizing");
+                synchronize();
+                if(this.isEventsMissed()) {
+                    synchronize();
+                }
             }
         });
     }
+
+    public boolean isSyncronizing() {
+        return isSyncronizing;
+    }
+    
+    
 }
