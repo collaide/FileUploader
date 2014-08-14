@@ -33,8 +33,9 @@ public class SingleGroupInfoPanel extends javax.swing.JPanel {
         this.group = group;
         setSynchronizedMessage();
         if(group != null && CurrentUser.isGroupSynchronized(group.getId())) {
-            GroupSync groupSync = CurrentUser.getUser().getGroupSyncList().getGroupSync(group.getId());
-            groupSync.synchronize();
+            GroupSync groupSync = CurrentUser.getUser()
+                    .getGroupSyncList()
+                    .getGroupSync(group.getId());
             groupSync.startObserving();
         }
     }

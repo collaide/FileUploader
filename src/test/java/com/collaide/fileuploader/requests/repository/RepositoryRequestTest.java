@@ -15,8 +15,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
 import org.junit.After;
 import org.junit.AfterClass;
