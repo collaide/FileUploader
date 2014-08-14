@@ -10,14 +10,6 @@ package com.collaide.fileuploader.models.notifications;
  *
  * @author leo
  */
-public class FileCreated {
-    private int id;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+public class ItemMoved {
+    
 }

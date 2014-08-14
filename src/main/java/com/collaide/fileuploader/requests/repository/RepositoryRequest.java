@@ -21,7 +21,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.logging.Level;
 import javax.ws.rs.core.MediaType;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -156,10 +155,6 @@ public class RepositoryRequest extends Collaide {
             }
         }
         return repo;
-    }
-
-    private JsonElement getResponseToJsonElement(ClientResponse response) {
-        return new JsonParser().parse(response.getEntity(String.class));
     }
 
     private String getFileName(ClientResponse response) {

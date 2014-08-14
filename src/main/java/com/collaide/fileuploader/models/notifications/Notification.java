@@ -12,16 +12,24 @@ package com.collaide.fileuploader.models.notifications;
  */
 public class Notification {
     
-    private String event;
+    private String notifierType;
+    private String type;
 
-    public String getEvent() {
-        return event;
+    public String getNotifierType() {
+        return notifierType;
     }
 
-    public void setEvent(String event) {
-        this.event = event;
+    public void setNotifierType(String notifierType) {
+        this.notifierType = notifierType;
     }
-    
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
     
     
 }

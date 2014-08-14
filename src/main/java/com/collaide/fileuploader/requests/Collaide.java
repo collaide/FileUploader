@@ -6,7 +6,10 @@
 
 package com.collaide.fileuploader.requests;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 /**
@@ -28,5 +31,8 @@ public class Collaide {
         return base_uri;
     }
     
+    protected JsonElement getResponseToJsonElement(ClientResponse response) {
+        return new JsonParser().parse(response.getEntity(String.class));
+    }
     
 }
