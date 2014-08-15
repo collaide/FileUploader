@@ -139,7 +139,7 @@ public class FilesRequest extends RepositoryRequest {
      */
     public boolean hasActiveConnections() {
         if (sendFileList == null || sendFileList.isEmpty()) {
-            return httpClient == null;
+            return !(httpClient == null);
         }
         for (SendFileThread sendFileThread : sendFileList) {
             try {

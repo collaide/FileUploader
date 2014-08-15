@@ -61,7 +61,7 @@ public class FileRequestTest {
         logger.debug("terminate() called");
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void sendALotOfFilesWithDefaultParams() {
         for (int i = 0; i < 20; i++) {
@@ -70,7 +70,7 @@ public class FileRequestTest {
         assertEquals(f.hasActiveConnections(), false);
     }
 
-    @Ignore("Think after that terminate() is called. Assert will be true")
+    //@Ignore("Think after that terminate() is called. Assert will be true")
     @Test
     public void sendALotOfFilesWithMAxConnections20() {
         f = new FilesRequest(22, 3);

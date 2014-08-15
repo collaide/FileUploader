@@ -48,7 +48,7 @@ public class RepoItemsNotificationRequestTest extends TestHelper {
     public void testGetFileCreated() throws RepoItemNotDeleted {
         FilesRequest fileRequest = new FilesRequest(ADMIN_GROUP_ID);
         RepositoryRequest repositoryRequest = new RepositoryRequest(ADMIN_GROUP_ID);
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 5; i++) {
             fileRequest.create(createNewFile());
         }
         File file = createNewFile();
