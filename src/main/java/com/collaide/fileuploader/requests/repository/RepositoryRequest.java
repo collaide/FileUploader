@@ -114,6 +114,12 @@ public class RepositoryRequest extends Collaide {
         downloadedFile.getAbsolutePath();
         return itemName;
     }
+    
+    public void delete(int fileId) throws RepoItemNotDeleted {
+        ClientResponse response = request(getRepoItemUrl(fileId) + "?" + CurrentUser.getAuthParams())
+                .delete(ClientResponse.class);
+        if(response.getStatus() != 200) throw new RepoItemNotDeleted(response.getStatus());
+    }
 
     protected String getRepoItemUrl(int id) {
         return uri + String.valueOf(id);

@@ -6,21 +6,27 @@
 
 package com.collaide.fileuploader.models.notifications;
 
+import com.google.gson.annotations.Expose;
+
 /**
  *
  * @author leo
  */
 public class Notification {
     
-    private String notifierType;
+    @Expose
+    private String notifier_type;
+    @Expose
     private String type;
+    @Expose
+    private String from_path;
 
     public String getNotifierType() {
-        return notifierType;
+        return notifier_type;
     }
 
     public void setNotifierType(String notifierType) {
-        this.notifierType = notifierType;
+        this.notifier_type = notifierType;
     }
 
     public String getType() {
@@ -30,6 +36,18 @@ public class Notification {
     public void setType(String type) {
         this.type = type;
     }
+
+    public String getFromPath() {
+        return from_path;
+    }
+
+    public void setFromPath(String fromPath) {
+        this.from_path = fromPath;
+    }
     
-    
+    @Override
+    public String toString() {
+        return "type: " + getType() + "; notifierType: " + getNotifierType() + 
+                "; fromPath: " + getFromPath();
+    }
 }

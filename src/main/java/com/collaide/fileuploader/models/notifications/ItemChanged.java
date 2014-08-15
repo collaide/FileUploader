@@ -6,29 +6,23 @@
 
 package com.collaide.fileuploader.models.notifications;
 
+import com.google.gson.annotations.Expose;
+
 /**
  *
  * @author leo
  */
 public class ItemChanged extends Notification{
     
-    private int notifierId;
-    private String fromPath;
+    @Expose
+    private int notifier_id;
 
     public int getNotifierId() {
-        return notifierId;
+        return notifier_id;
     }
 
     public void setNotifierId(int notifierId) {
-        this.notifierId = notifierId;
-    }
-
-    public String getFromPath() {
-        return fromPath;
-    }
-
-    public void setFromPath(String fromPath) {
-        this.fromPath = fromPath;
+        this.notifier_id = notifierId;
     }
     
     

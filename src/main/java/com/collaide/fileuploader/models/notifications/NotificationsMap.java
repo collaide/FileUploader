@@ -28,4 +28,9 @@ public class NotificationsMap {
         }
         notifications.get(klass).add(object);
     }
+    
+    public <T>T getMostRecentNotification(Class klass) {
+        ArrayList list = getArrayList(klass);
+        return (T)klass.cast(list.get(list.size()-1));
+    }
 }

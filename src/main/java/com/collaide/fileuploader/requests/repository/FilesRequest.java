@@ -7,12 +7,12 @@ package com.collaide.fileuploader.requests.repository;
 
 import com.collaide.fileuploader.models.repositorty.RepoFile;
 import com.collaide.fileuploader.models.user.CurrentUser;
+import com.sun.jersey.api.client.ClientResponse;
 import java.io.File;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
