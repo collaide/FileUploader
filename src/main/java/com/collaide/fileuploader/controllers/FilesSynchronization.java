@@ -5,7 +5,6 @@
  */
 package com.collaide.fileuploader.controllers;
 
-import com.collaide.fileuploader.models.GroupSync;
 import com.collaide.fileuploader.views.listeners.FileChangeListener;
 import java.io.IOException;
 import java.nio.file.FileSystems;

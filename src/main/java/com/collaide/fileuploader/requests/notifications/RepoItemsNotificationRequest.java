@@ -6,16 +6,14 @@
 package com.collaide.fileuploader.requests.notifications;
 
 import com.collaide.fileuploader.models.Model;
-import com.collaide.fileuploader.models.notifications.ItemChanged;
 import com.collaide.fileuploader.models.notifications.Notification;
 import com.collaide.fileuploader.models.notifications.NotificationsMap;
-import com.collaide.fileuploader.models.repositorty.RepoFolder;
 import com.collaide.fileuploader.models.user.CurrentUser;
 import com.collaide.fileuploader.requests.Collaide;
-import com.collaide.fileuploader.requests.repository.RepositoryRequest;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.sun.jersey.api.client.ClientResponse;
+import java.util.Calendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +29,19 @@ public class RepoItemsNotificationRequest extends Collaide {
 
     public RepoItemsNotificationRequest(int groupId) {
         this.groupId = groupId;
+    }
+
+    /**
+     * TODO implement
+     * <br/>
+     * get the notifications between the time passed in params and now
+     *
+     * @param userId
+     * @param c
+     * @return
+     */
+    public NotificationsMap getNotifications(int userId, Calendar c) {
+        return null;
     }
 
     public NotificationsMap getNotifications(int userId) {
@@ -51,7 +62,7 @@ public class RepoItemsNotificationRequest extends Collaide {
                         get("type").
                         getAsString()
                 );
-                logger.debug("json: "+notificationElement.toString());
+                logger.debug("json: " + notificationElement.toString());
                 notificationsMap.addNotification(Model.getJson(notification, notificationElement.toString()));
             } catch (ClassNotFoundException ex) {
                 logger.error("Notification cannot be found: " + ex);
