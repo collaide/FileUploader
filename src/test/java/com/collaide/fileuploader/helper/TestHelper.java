@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.Test;
 
 /**
  *
@@ -30,6 +31,9 @@ public class TestHelper extends CustomAssert {
     protected final Logger logger = LogManager.getLogger(this.getClass());
     protected final int ADMIN_GROUP_ID = 3;
 
+    @Test
+    public void dummy() {}
+    
     public static void beforeClass() {
         UsersRequest.signIn("admin@example.com", "password");
         prepare();

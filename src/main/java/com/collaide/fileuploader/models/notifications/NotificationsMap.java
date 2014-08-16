@@ -6,8 +6,10 @@
 
 package com.collaide.fileuploader.models.notifications;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -33,4 +35,26 @@ public class NotificationsMap {
         ArrayList list = getArrayList(klass);
         return (T)klass.cast(list.get(list.size()-1));
     }
+    
+    /**
+     * TODO debug it
+     * @param <T>
+     * @param klass
+     * @param method
+     * @param by
+     * @return
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     * @throws InvocationTargetException 
+     */
+    public <T>T getBy(Class klass, String method, Object by) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        for(Object item : getArrayList(klass)) {
+            T notification = (T)klass.cast(item);
+            if(klass.getDeclaredMethod(method, by.getClass()).invoke(notification).equals(by)) {
+                return notification;
+            }
+        }
+        return null;
+    } 
 }

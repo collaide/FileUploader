@@ -18,6 +18,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
@@ -45,7 +46,7 @@ public class RepoItemsNotificationRequestTest extends TestHelper {
     }
 
     @Test
-    public void testGetFileCreated() throws RepoItemNotDeleted {
+    public void testGetFileCreated() throws Exception {
         FilesRequest fileRequest = new FilesRequest(ADMIN_GROUP_ID);
         RepositoryRequest repositoryRequest = new RepositoryRequest(ADMIN_GROUP_ID);
         for (int i = 0; i < 5; i++) {
@@ -58,7 +59,16 @@ public class RepoItemsNotificationRequestTest extends TestHelper {
         repositoryRequest.delete(repoFile.getId());
         NotificationsMap notifications = request.getNotifications(CurrentUser.getUser().getId());
         assertNotNull(notifications);
-        ItemChanged itemChanged = notifications.getMostRecentNotification(ItemChanged.class);
+        ItemChanged itemChanged = null;
+        ArrayList itemsList = notifications.getArrayList(ItemChanged.class);
+        for(Object o : itemsList) {
+           ItemChanged item = (ItemChanged)o;
+            if(item.getNotifierId() == repoFile.getId()) {
+                itemChanged = item;
+                break;
+            }
+        }
+        assertNotNull(itemChanged);
         assertEquals(repoFile.getId(), itemChanged.getNotifierId());
         assertNotNull(notifications.getMostRecentNotification(ItemDeleted.class));
     }
@@ -80,7 +90,7 @@ public class RepoItemsNotificationRequestTest extends TestHelper {
     }
 
     @Test
-    public void testGetClassFromString() throws Exception{
+    public void testGetClassFromString() throws Exception {
         String sendedType = "ItemChanged";
         Method getFileName = invokePrivateMethod(
                 request.getClass(), "getClassFromString", String.class
