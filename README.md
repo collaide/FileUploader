@@ -18,18 +18,17 @@ Collaide app for synchronizing files and folders
 
 - [x] sign in to collaide
 - [x] change pane
-- [x] view infos about the repositories which the connected user can handle
-- [ ] select one repo
-- [ ] select files and folders to observes
+- [x] display user's repos
+- [x] select a repo to sync with a folder of the computer and remember the choice
+- [x] observe changes on the selected folder
+- [ ] push change to server
 - [ ] synchronize file and folders observed with the selected repo
-- [ ] enable notifications (maybe with a server in the app, so collaide can send POST notifications to the registred apps ?)
+- [ ] enable notifications (polling)
 - [ ] more ? (discussions, messages, etc)?
 
 ### Organization
 
 * Follow the mvc pattern
-* views designed with netbeans
-* controllers do request to collaide
+* controllers do request to collaide.com/api
 * models handles datas to send and retreived from collaide
 * views call controllers methods and use the datas
-* custom listener are used to know when to change the view in the main frame
