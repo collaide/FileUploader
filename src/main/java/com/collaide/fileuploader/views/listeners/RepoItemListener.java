@@ -8,13 +8,14 @@ package com.collaide.fileuploader.views.listeners;
 
 import com.collaide.fileuploader.models.notifications.ItemChanged;
 import com.collaide.fileuploader.models.notifications.ItemDeleted;
+import java.util.EventListener;
 
 /**
  *
  * @author leo
  */
-public interface RepoItemObserver {
- 
+public interface RepoItemListener extends EventListener{
+     
     public void itemChanged(ItemChanged item);
     public void itemDeleted(ItemDeleted item);
 }

@@ -6,10 +6,14 @@
 package com.collaide.fileuploader.models;
 
 import com.collaide.fileuploader.controllers.FilesSynchronization;
+import com.collaide.fileuploader.controllers.LocalFileSynchronizer;
+import com.collaide.fileuploader.controllers.notifications.Polling;
+import com.collaide.fileuploader.controllers.notifications.ServerSynchronization;
 import com.collaide.fileuploader.models.repositorty.RepoFile;
 import com.collaide.fileuploader.models.repositorty.RepoFolder;
 import com.collaide.fileuploader.models.repositorty.RepoItems;
 import com.collaide.fileuploader.models.repositorty.Repository;
+import com.collaide.fileuploader.models.user.CurrentUser;
 import com.collaide.fileuploader.requests.repository.FilesRequest;
 import com.collaide.fileuploader.requests.repository.FolderNotCreatedException;
 import com.collaide.fileuploader.requests.repository.FolderRequest;
@@ -42,6 +46,7 @@ public class GroupSync implements Serializable {
     private transient FilesRequest filesRequest;
     private transient FolderRequest folderRequest;
     private transient boolean isSyncronizing = false;
+    private transient ServerSynchronization serverSynchronization;
 
     public Group getGroup() {
         return group;
@@ -100,29 +105,28 @@ public class GroupSync implements Serializable {
             }
             // sync items present on local with the server
             for (File itemToSync : folderToSync.listFiles()) {
-                if(itemToSync.getName().startsWith(".")) {
+                if (itemToSync.getName().startsWith(".")) {
                     continue;
                 }
                 if (itemToSync.isDirectory()) { // is a directory
                     try {
-                    logger.debug(itemToSync.getName() + " is a dir. Synchronizing");
-                    RepoFolder nextFolder;
-                    if (serverFolders.containsKey(itemToSync.getName())) { // itemTo Sync existe sur le serveur
-                        logger.debug(itemToSync.getName() + " exist on the server");
-                        nextFolder = serverFolders.get(itemToSync.getName());
-                    } else {// itemToSync n'existe pas sur le serveur
-                        nextFolder = (repoId == 0 ?
-                                folderRequest.create(itemToSync.getName()) :
-                                folderRequest.create(itemToSync.getName(), repoId)
-                                );
-                        logger.debug("the id of the folder syncing is: " + repoId);
-                        logger.debug(itemToSync.getName() + " has been created. " + nextFolder.getId());
-                    }
-                    synchronizeALL(itemToSync.getPath(), repositoryRequest.get(nextFolder.getId()), nextFolder);
-                    } catch(FolderNotCreatedException ex) {
-                        logger.error("unable to create and sync the folder: " + 
-                                itemToSync.getAbsolutePath() + 
-                                " exception: " + ex);
+                        logger.debug(itemToSync.getName() + " is a dir. Synchronizing");
+                        RepoFolder nextFolder;
+                        if (serverFolders.containsKey(itemToSync.getName())) { // itemTo Sync existe sur le serveur
+                            logger.debug(itemToSync.getName() + " exist on the server");
+                            nextFolder = serverFolders.get(itemToSync.getName());
+                        } else {// itemToSync n'existe pas sur le serveur
+                            nextFolder = (repoId == 0
+                                    ? folderRequest.create(itemToSync.getName())
+                                    : folderRequest.create(itemToSync.getName(), repoId));
+                            logger.debug("the id of the folder syncing is: " + repoId);
+                            logger.debug(itemToSync.getName() + " has been created. " + nextFolder.getId());
+                        }
+                        synchronizeALL(itemToSync.getPath(), repositoryRequest.get(nextFolder.getId()), nextFolder);
+                    } catch (FolderNotCreatedException ex) {
+                        logger.error("unable to create and sync the folder: "
+                                + itemToSync.getAbsolutePath()
+                                + " exception: " + ex);
                     }
                     serverFolders.remove(itemToSync.getName()); // le dossier existe en local. On l'enlève de la liste à synchronizer.
                 } else { // is a file
@@ -168,12 +172,22 @@ public class GroupSync implements Serializable {
             synchronization.start();
             addListeners(synchronization);
         }
+        if (serverSynchronization != null) {
+            return;
+        }
+        serverSynchronization = new Polling(this, CurrentUser.getUser().getId());
+        serverSynchronization.addRepoItemListener(new LocalFileSynchronizer(path, group.getId()));
+        serverSynchronization.start();
     }
 
     public void stopObserving() {
         if (synchronization != null) {
             synchronization.setStopObserving(true);
             synchronization = null;
+        }
+        if(serverSynchronization != null) {
+            serverSynchronization = null;
+            serverSynchronization.stop();
         }
     }
 
@@ -184,7 +198,7 @@ public class GroupSync implements Serializable {
             public void onChange(Path child) {
                 logger.debug(child.toFile().getAbsoluteFile() + " is changed. Synchronizing");
                 synchronize();
-                if(this.isEventsMissed()) {
+                if (this.isEventsMissed()) {
                     synchronize();
                 }
             }
@@ -194,6 +208,5 @@ public class GroupSync implements Serializable {
     public boolean isSyncronizing() {
         return isSyncronizing;
     }
-    
-    
+
 }

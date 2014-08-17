@@ -83,13 +83,17 @@ public class RepositoryRequest extends Collaide {
         return repo;
     }
 
+    public String download(int repoItemId, String folderToSave) throws IOException {
+        return download(getRepoItemUrl(repoItemId) + "/download?" + CurrentUser.getAuthParams(), folderToSave);
+    }
+    
     /**
      * download a file or a folder from the server to the disk a folder is
      * downloaded as a zip and the unzipped<br/>
      *
      * @param url the URL of the repo item to download
      * @param folderToSave the folderin which to save the downloaded item
-     * @return The String path of the saved file or folder
+     * @return The path of the saved file or folder
      * @throws IOException
      */
     public String download(String url, String folderToSave) throws IOException {

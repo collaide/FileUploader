@@ -6,9 +6,11 @@
 
 package com.collaide.fileuploader.models.notifications;
 
+import com.collaide.fileuploader.models.repositorty.RepoItems;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -21,6 +23,14 @@ public class NotificationsMap {
     
     public ArrayList getArrayList(Class t) {
         return notifications.get(t);
+    }
+    
+    public ArrayList[] toArray() {
+        return (ArrayList[]) notifications.values().toArray();
+    }
+    
+    public Iterator getIterator() {
+        return notifications.entrySet().iterator();
     }
     
     public void addNotification(Object object) {

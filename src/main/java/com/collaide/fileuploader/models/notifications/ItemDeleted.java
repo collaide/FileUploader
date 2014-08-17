@@ -6,10 +6,12 @@
 
 package com.collaide.fileuploader.models.notifications;
 
+
 /**
  *
  * @author leo
  */
-public class ItemDeleted {
+public class ItemDeleted extends Notification{
+
     
 }

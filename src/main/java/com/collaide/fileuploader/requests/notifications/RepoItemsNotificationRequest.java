@@ -10,10 +10,17 @@ import com.collaide.fileuploader.models.notifications.Notification;
 import com.collaide.fileuploader.models.notifications.NotificationsMap;
 import com.collaide.fileuploader.models.user.CurrentUser;
 import com.collaide.fileuploader.requests.Collaide;
+import com.collaide.fileuploader.views.listeners.RepoItemListener;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.sun.jersey.api.client.ClientResponse;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Calendar;
+import java.util.EventListener;
+import java.util.logging.Level;
+import javax.swing.event.EventListenerList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +38,28 @@ public class RepoItemsNotificationRequest extends Collaide {
         this.groupId = groupId;
     }
 
+    public void notificationWithListener(int userId, Calendar c, RepoItemListener[] listeners) {
+        for (JsonElement notificationElement : getJsonNotifications(userId, c)) {
+            try {
+                Class notification = getClassFromString(
+                        notificationElement.
+                        getAsJsonObject().
+                        get("type").
+                        getAsString()
+                );
+                for (RepoItemListener listener : listeners) {
+                    new CallListenerMethodThread(
+                            notification, 
+                            listener, 
+                            notificationElement.toString()
+                    ).start();
+                }
+            } catch (ClassNotFoundException ex) {
+                logger.error("Notification cannot be found: " + ex);
+            }
+        }
+    }
+
     /**
      * TODO implement
      * <br/>
@@ -41,20 +70,8 @@ public class RepoItemsNotificationRequest extends Collaide {
      * @return
      */
     public NotificationsMap getNotifications(int userId, Calendar c) {
-        return null;
-    }
-
-    public NotificationsMap getNotifications(int userId) {
-        ClientResponse response = request(
-                "user/" + String.valueOf(userId) + "/groups/"
-                + String.valueOf(groupId) + "/notify?"
-                + CurrentUser.getAuthParams()).get(ClientResponse.class);
-        if (response.getStatus() != 200) {
-            return null;
-        }
-        JsonElement notifications = getResponseToJsonElement(response);
         NotificationsMap notificationsMap = new NotificationsMap();
-        for (JsonElement notificationElement : notifications.getAsJsonArray()) {
+        for (JsonElement notificationElement : getJsonNotifications(userId, null)) {
             try {
                 Class notification = getClassFromString(
                         notificationElement.
@@ -72,9 +89,25 @@ public class RepoItemsNotificationRequest extends Collaide {
         return notificationsMap;
     }
 
+    public NotificationsMap getNotifications(int userId) {
+        return getNotifications(userId, null);
+    }
+
     private String getNotificationType(String fullType) {
         String[] splitedType = fullType.split("::");
         return splitedType[splitedType.length - 1];
+    }
+
+    private JsonArray getJsonNotifications(int userId, Calendar c) {
+        ClientResponse response = request(
+                "user/" + String.valueOf(userId) + "/groups/"
+                + String.valueOf(groupId) + "/notify?"
+                + CurrentUser.getAuthParams()).get(ClientResponse.class);
+        if (response.getStatus() != 200) {
+            return null;
+        }
+        JsonElement notifications = getResponseToJsonElement(response);
+        return notifications.getAsJsonArray();
     }
 
     private String toFullJavaClass(String type) {
