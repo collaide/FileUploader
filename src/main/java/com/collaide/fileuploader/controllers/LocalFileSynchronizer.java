@@ -15,11 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 
 /**
- * TODO: implement
- * <br/>
  * TODO think of a new way for organizing file synchronization (local and
  * server)
  *
@@ -29,7 +28,7 @@ public class LocalFileSynchronizer implements RepoItemListener {
 
     private final String path;
     private final RepositoryRequest repositoryRequest;
-    
+
     public LocalFileSynchronizer(String path, int groupId) {
         this.path = path;
         repositoryRequest = new RepositoryRequest(groupId);
@@ -38,7 +37,10 @@ public class LocalFileSynchronizer implements RepoItemListener {
     @Override
     public void itemChanged(ItemChanged item) {
         try {
-            repositoryRequest.download(item.getNotifierId(), path + item.getFromPath());
+            repositoryRequest.download(
+                    item.getNotifierId(),
+                    path + new File(item.getFromPath()).getParent()
+            );
         } catch (IOException ex) {
             LogManager.getLogger(LocalFileSynchronizer.class).error("cannot save file : " + ex);
         }
@@ -47,10 +49,14 @@ public class LocalFileSynchronizer implements RepoItemListener {
     @Override
     public void itemDeleted(ItemDeleted item) {
         try {
-            //TODO: delete folder recursively
-            Files.deleteIfExists(new File(item.getFromPath()).toPath());
+            File fileToDelete = new File(item.getFromPath());
+            if(fileToDelete.isDirectory()) {
+                FileUtils.deleteDirectory(fileToDelete);
+            } else {
+                Files.deleteIfExists(new File(item.getFromPath()).toPath());
+            }
         } catch (IOException ex) {
-            Logger.getLogger(LocalFileSynchronizer.class.getName()).log(Level.SEVERE, null, ex);
+            LogManager.getLogger(LocalFileSynchronizer.class).error("cannot delete file file : " + ex);
         }
     }
 

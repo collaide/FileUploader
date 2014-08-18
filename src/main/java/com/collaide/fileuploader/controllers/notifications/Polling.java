@@ -27,6 +27,7 @@ public class Polling extends ServerSynchronization {
 
     private final int TEN_MINUTES = 1000 * 60 * 10;
     private Timer timer;
+    private long timestamp;
 
     public Polling(GroupSync groupSync, int userId) {
         super(groupSync, userId);
@@ -38,12 +39,13 @@ public class Polling extends ServerSynchronization {
         if (timer != null) {
             return;
         }
+        timestamp = System.currentTimeMillis();
         timer = new Timer(TEN_MINUTES, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO use calendar
-                request.notificationWithListener(userId, null, listenersToArray());
+                request.notificationWithListener(userId, timestamp, listenersToArray());
+                timestamp = System.currentTimeMillis();
             }
         });
         timer.setRepeats(true);

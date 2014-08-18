@@ -32,9 +32,9 @@ import org.junit.Test;
 public class RepoItemsNotificationRequestTest extends TestHelper {
 
     private final RepoItemsNotificationRequest request = new RepoItemsNotificationRequest(ADMIN_GROUP_ID);
+    private final RepositoryRequest repositoryRequest = new RepositoryRequest(ADMIN_GROUP_ID);
+    private final FilesRequest fileRequest = new FilesRequest(ADMIN_GROUP_ID);
 
-    ;
-    
     @BeforeClass
     public static void beforeClass() {
         TestHelper.beforeClass();
@@ -46,9 +46,7 @@ public class RepoItemsNotificationRequestTest extends TestHelper {
     }
 
     @Test
-    public void testGetFileCreated() throws Exception {
-        FilesRequest fileRequest = new FilesRequest(ADMIN_GROUP_ID);
-        RepositoryRequest repositoryRequest = new RepositoryRequest(ADMIN_GROUP_ID);
+    public void testGetAllNotifications() throws Exception {
         for (int i = 0; i < 5; i++) {
             fileRequest.create(createNewFile());
         }
@@ -61,9 +59,9 @@ public class RepoItemsNotificationRequestTest extends TestHelper {
         assertNotNull(notifications);
         ItemChanged itemChanged = null;
         ArrayList itemsList = notifications.getArrayList(ItemChanged.class);
-        for(Object o : itemsList) {
-           ItemChanged item = (ItemChanged)o;
-            if(item.getNotifierId() == repoFile.getId()) {
+        for (Object o : itemsList) {
+            ItemChanged item = (ItemChanged) o;
+            if (item.getNotifierId() == repoFile.getId()) {
                 itemChanged = item;
                 break;
             }
@@ -71,6 +69,17 @@ public class RepoItemsNotificationRequestTest extends TestHelper {
         assertNotNull(itemChanged);
         assertEquals(repoFile.getId(), itemChanged.getNotifierId());
         assertNotNull(notifications.getMostRecentNotification(ItemDeleted.class));
+    }
+
+    @Test
+    public void testNotificationWithDate() {
+        long timestamp = System.currentTimeMillis();
+        File fileToSend = createNewFile();
+        fileRequest.create(fileToSend);
+        fileRequest.terminate();
+        NotificationsMap notifications = request.getNotifications(CurrentUser.getUser().getId(), timestamp);
+        assertNotNull(notifications);
+        ArrayList notifItemChanged = notifications.getArrayList(ItemChanged.class);
     }
 
     @Test
@@ -102,6 +111,14 @@ public class RepoItemsNotificationRequestTest extends TestHelper {
             logger.error("error while invoking getFileName: " + ex.getCause());
             fail("invocation error");
         }
+    }
+    
+    @Test
+    public void testToCollaideFormat() throws Exception  {
+        //Method m = invokePrivateMethod(request.getClass(), "toCollaideFormat", Long.class);
+        String result = request.toCollaideFormat(System.currentTimeMillis());//(String)m.invoke(request, System.currentTimeMillis());
+        assertNotNull(result);
+        logger.debug(result);
     }
 
     private String dummyFullType(String type) {

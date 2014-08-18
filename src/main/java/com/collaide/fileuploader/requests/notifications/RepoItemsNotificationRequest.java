@@ -17,7 +17,10 @@ import com.google.gson.JsonElement;
 import com.sun.jersey.api.client.ClientResponse;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.EventListener;
 import java.util.logging.Level;
 import javax.swing.event.EventListenerList;
@@ -38,8 +41,8 @@ public class RepoItemsNotificationRequest extends Collaide {
         this.groupId = groupId;
     }
 
-    public void notificationWithListener(int userId, Calendar c, RepoItemListener[] listeners) {
-        for (JsonElement notificationElement : getJsonNotifications(userId, c)) {
+    public void notificationWithListener(int userId, long timestamp, RepoItemListener[] listeners) {
+        for (JsonElement notificationElement : getJsonNotifications(userId, timestamp)) {
             try {
                 Class notification = getClassFromString(
                         notificationElement.
@@ -49,8 +52,8 @@ public class RepoItemsNotificationRequest extends Collaide {
                 );
                 for (RepoItemListener listener : listeners) {
                     new CallListenerMethodThread(
-                            notification, 
-                            listener, 
+                            notification,
+                            listener,
                             notificationElement.toString()
                     ).start();
                 }
@@ -61,17 +64,16 @@ public class RepoItemsNotificationRequest extends Collaide {
     }
 
     /**
-     * TODO implement
      * <br/>
      * get the notifications between the time passed in params and now
      *
      * @param userId
-     * @param c
+     * @param timestamp
      * @return
      */
-    public NotificationsMap getNotifications(int userId, Calendar c) {
+    public NotificationsMap getNotifications(int userId, long timestamp) {
         NotificationsMap notificationsMap = new NotificationsMap();
-        for (JsonElement notificationElement : getJsonNotifications(userId, null)) {
+        for (JsonElement notificationElement : getJsonNotifications(userId, timestamp)) {
             try {
                 Class notification = getClassFromString(
                         notificationElement.
@@ -90,7 +92,7 @@ public class RepoItemsNotificationRequest extends Collaide {
     }
 
     public NotificationsMap getNotifications(int userId) {
-        return getNotifications(userId, null);
+        return getNotifications(userId, 0);
     }
 
     private String getNotificationType(String fullType) {
@@ -98,16 +100,24 @@ public class RepoItemsNotificationRequest extends Collaide {
         return splitedType[splitedType.length - 1];
     }
 
-    private JsonArray getJsonNotifications(int userId, Calendar c) {
-        ClientResponse response = request(
-                "user/" + String.valueOf(userId) + "/groups/"
+    private JsonArray getJsonNotifications(int userId, long timestamp) {
+        String url = "user/" + String.valueOf(userId) + "/groups/"
                 + String.valueOf(groupId) + "/notify?"
-                + CurrentUser.getAuthParams()).get(ClientResponse.class);
+                + CurrentUser.getAuthParams();
+        if(timestamp > 0) {
+            //TODO escaper les espaces
+            url = url + "&from_time=2014-08-18 17:58:44";// + toCollaideFormat(timestamp);
+        }
+        ClientResponse response = request(url).get(ClientResponse.class);
         if (response.getStatus() != 200) {
             return null;
         }
         JsonElement notifications = getResponseToJsonElement(response);
         return notifications.getAsJsonArray();
+    }
+
+    public String toCollaideFormat(long timestamp) {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(timestamp);
     }
 
     private String toFullJavaClass(String type) {
